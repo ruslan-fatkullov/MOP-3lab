@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 1
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 1
 func.ASM
 
 
@@ -60,7 +60,7 @@ func.ASM
 1    55						 pop dx
 1    56							 ENDM
 1    57
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 2
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 2
 func.ASM
 
 
@@ -122,7 +122,7 @@ func.ASM
     112	    0020  E8 0001			 CALL	 PUTC
     113	    0023  C3			 @@R:	 RET
     114	    0024			 PUTSS	 ENDP
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 3
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 3
 func.ASM
 
 
@@ -184,7 +184,7 @@ func.ASM
     169
     170	    0052  66| 33 C0			 xor eax, eax
     171	    0055  66| 83 C6 02			 add esi, 2
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 4
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 4
 func.ASM
 
 
@@ -246,7 +246,7 @@ func.ASM
     226
     227	    00BA				 errorSize:
     228	    00BA  66| B8 FFFFFFFF		 mov eax, -1
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 5
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 5
 func.ASM
 
 
@@ -308,7 +308,7 @@ func.ASM
     283	    0115				 sign:
     284	    0115  67| 80 3E 2D			 cmp byte ptr[esi], '-'
     285	    0119  75 0A	90 90			 jne integer
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 6
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 6
 func.ASM
 
 
@@ -370,7 +370,7 @@ func.ASM
     340
     341					 ;==============================================
     342					 ; Подпрограмма вывода массива
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 7
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 7
 func.ASM
 
 
@@ -432,7 +432,7 @@ func.ASM
     397					 ;=================================================
     398	    01B6			 MulFive PROC	 NEAR
     399	    01B6  66| 57			 push edi
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 8
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 8
 func.ASM
 
 
@@ -494,7 +494,7 @@ func.ASM
     454					 ;=================================================
     455	    0219			 calcFive	 PROC	 NEAR
     456	    0219  50				 push ax
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 9
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 9
 func.ASM
 
 
@@ -556,7 +556,7 @@ func.ASM
     511	    0279  EB C8				 jmp startSum
     512
     513	    027B				 transfer:
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 10
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 10
 func.ASM
 
 
@@ -618,7 +618,7 @@ func.ASM
     568	    02C8  67| 8A 07				 mov al,  byte ptr[edi]
     569	    02CB  02 C2					 add al, dl
     570	    02CD  2C 01					 sub al, 1
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 11
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 11
 func.ASM
 
 
@@ -680,7 +680,7 @@ func.ASM
     625	    0320  B2 00				 mov dl, 0
     626	    0322				 bbb1:
     627	    0322  2A C3				 sub al, bl
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 12
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 12
 func.ASM
 
 
@@ -742,7 +742,7 @@ func.ASM
     682	    037E  66| 59			 pop ecx
     683	    0380  C3					 RET
     684	    0381			 normalize	 ENDP
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 13
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 13
 func.ASM
 
 
@@ -796,7 +796,7 @@ func.ASM
     731					 PUBLIC	 normalize
     732					 PUBLIC	 subtraction
     733					 END
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 14
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 14
 Symbol Table
 
 
@@ -804,9 +804,9 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "05/09/21"
+??DATE				  Text	 "05/10/21"
 ??FILENAME			  Text	 "func	  "
-??TIME				  Text	 "19:42:50"
+??TIME				  Text	 "12:52:41"
 ??VERSION			  Number 0205
 @@CONVERT			  Near	 _TEXT:018D
 @@E				  Near	 _TEXT:0019
@@ -858,7 +858,7 @@ EXITCLEAR			  Near	 _TEXT:0173
 FIRSTISNUMBER			  Near	 _TEXT:026C
 FIRSTISNUMBERSUB		  Near	 _TEXT:02EF
 GETCH				  Near	 _TEXT:0000
-Turbo Assembler	 Version 2.51	     05/09/21 19:42:50	    Page 15
+Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 15
 Symbol Table
 
 
