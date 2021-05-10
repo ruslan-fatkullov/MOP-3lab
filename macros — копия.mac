@@ -1,0 +1,131 @@
+; Макрос вывода строки LINE 
+PUTL    MACRO LINE
+	push ecx
+	push eax
+        LEA   SI,   LINE
+	XOR   CX,   CX
+	XOR   DX,   DX
+	XOR   AX,   AX	
+        CALL  PUTSS
+	pop eax
+	pop ecx
+        ENDM
+		
+PUTLS   MACRO LINE
+	PUSH	SI
+	PUSH	AX
+	XOR   AX,   AX	
+    LEA   SI,   LINE
+    CALL  PUTSS
+	POP	AX
+	POP	SI
+ENDM
+
+INPUTMAS MACRO STRING
+	xor dx, dx
+	mov ah,0Ah
+    lea dx,STRING
+    int 21h 
+		ENDM
+		
+		
+NullMass MACRO STRING
+	push si
+	lea si, STRING
+	call MassiveNull
+	pop si
+		ENDM		
+		
+ToCenter MACRO STRING, CH
+	push si
+	lea si, STRING
+	mov al, CH
+	mov cx, ax
+	call SLENGHT
+	sub cx, ax
+	shr cx, 1
+	T0:
+		mov ah, 02h
+		mov dl, ' '
+		int 21h
+		loop T0
+	lea si, STRING
+	call OutMassive
+	PUTL empty
+	pop si
+		ENDM
+		
+Minimum MACRO STRING, CH
+	local R0
+	push si
+	lea si, STRING
+	call SLENGHT
+	mov bx, CH
+	cmp ax, bx
+	jl R0
+		mov dl, al
+		mov CH, dl
+	R0:
+	pop si
+		ENDM
+		
+Validation MACRO STRING
+	local notNumber, Q0, yesNumber, Q1
+	push si
+	lea si, STRING
+	Q0:
+	cmp byte ptr[si+2], '$'
+	je yesNumber
+	
+	cmp byte ptr[si+2], 30h
+	jl notNumber
+	cmp byte ptr[si+2], 39h
+	jg notNumber
+	inc si
+	jmp Q0
+	
+	notNumber:
+		mov cx, 0
+		jmp Q1
+	yesNumber:
+		mov cx, 1 
+	Q1:
+	pop si
+		ENDM
+
+;перевод строки в число в регистр dx
+SymbolToNumber MACRO STRING, TEN
+	local Y0, Y1, T0
+	
+	push si
+	mov cx, 0
+	lea si, STRING
+	Y0:
+	cmp byte ptr[si+2], '$'
+	je Y1
+	mov al, byte ptr[si+2]
+	push ax
+	inc cx
+	inc si
+	jmp Y0
+	Y1:
+	mov bx, 1
+	mov dx, 0
+	T0:
+	cmp cx, 0
+	je T1
+	pop ax
+	sub ax, 30h
+	push dx
+	mul bx
+	pop dx
+	add dx, ax
+	mov ax, bx
+	mul TEN
+	mov bx, ax
+	dec cx
+	jmp T0
+	T1:
+	
+	pop si
+		ENDM

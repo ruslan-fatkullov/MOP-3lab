@@ -1,0 +1,73 @@
+; Макрос вывода строки LINE 
+PUTL    MACRO LINE
+	push ecx
+	push eax
+	push edx
+	push si
+        LEA   SI,   LINE
+	XOR   CX,   CX
+	XOR   DX,   DX
+	XOR   AX,   AX	
+        CALL  PUTSS
+	pop	si
+	pop edx
+	pop eax
+	pop ecx
+        ENDM
+		
+PUTLS   MACRO LINE
+	PUSH	SI
+	PUSH	AX
+	XOR   AX,   AX	
+    LEA   SI,   LINE
+    CALL  PUTSS
+	POP	AX
+	POP	SI
+ENDM
+
+INPUTMAS MACRO STRING
+	local V0, V1
+	push dx
+	push ax
+	push esi
+	
+	xor dx, dx
+	mov ah,0Ah
+    lea dx,STRING
+    int 21h 
+	lea esi, STRING
+	
+	V1:
+	cmp byte ptr[esi+2], 0
+	je V0
+	inc esi
+	jmp V1
+	V0:
+	mov byte ptr[esi+1], 0
+	
+	
+	pop esi
+	pop ax
+	pop dx
+		ENDM
+		
+		
+ClearMas MACRO STRING
+	push esi
+	lea esi, STRING
+	call clearMassive
+	pop esi
+		ENDM		
+CheckStr MACRO STRING
+	call checkOnDot
+	cmp eax, 1
+	jne inputError
+	call checkOnSize
+	cmp eax, -1
+	je inputError
+	call checkOnNumber
+	cmp eax, -1
+	je inputError
+		ENDM	
+
+
