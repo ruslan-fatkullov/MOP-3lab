@@ -51,7 +51,16 @@ INPUTMAS MACRO STRING
 	pop dx
 		ENDM
 		
-		
+getElement MACRO 
+		;;;
+	push bx
+	xor eax,eax
+	mov al, byte ptr[edi]
+	mov bl, 18
+	mul bl
+	pop bx
+	;;;
+		ENDM		
 ClearMas MACRO STRING
 	push esi
 	lea esi, STRING

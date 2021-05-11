@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 1
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 1
 func.ASM
 
 
@@ -60,797 +60,864 @@ func.ASM
 1    55						 pop dx
 1    56							 ENDM
 1    57
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 2
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 2
 func.ASM
 
 
 
-1    58
-1    59					 ClearMas MACRO	STRING
-1    60						 push esi
-1    61						 lea esi, STRING
-1    62						 call clearMassive
-1    63						 pop esi
-1    64							 ENDM
-1    65					 CheckStr MACRO	STRING
-1    66						 call checkOnDot
-1    67						 cmp eax, 1
-1    68						 jne inputError
-1    69						 call checkOnSize
-1    70						 cmp eax, -1
-1    71						 je inputError
-1    72						 call checkOnNumber
-1    73						 cmp eax, -1
-1    74						 je inputError
-1    75							 ENDM
-1    76
-1    77
-1    78
-     79
-     80					  LOCALS
-     81
-     82					 ;==============================================
-     83					 ; Подпрограмма ввода символа в AL с терминала
-     84					 ;==============================================
-     85	    0000			 GETCH	 PROC	 NEAR
-     86	    0000  B4 08				 MOV	 AH,   8
-     87	    0002  CD 21				 INT	 21h
-     88	    0004  C3				 RET
-     89	    0005			 GETCH	 ENDP
-     90					 ;=====================================================
-     91					 ; Подпрограмма вывода на экран строки, адресуемой +
-     92					 SI,
-     93					 ; с задержкой времени	между символами в <CX,DX> mcs.
-     94					 ; Завершителями строки являеются байты 0 или 0FFh.
-     95					 ; ЕСЛИ строка заканчивается байтом 0,
-     96					 ;   ТО добавляется переход	в начало	новой строки
-     97					 ;
-     98					 ;=====================================================
-     99	    0005			 PUTSS	 PROC	 NEAR
-    100	    0005  8A 04			 @@L:	 MOV	 AL,	 [SI]
-    101	    0007  3C FF				 CMP	 AL,	 0FFH
-    102	    0009  74 18	90 90			 JE	 @@R
-    103	    000D  3C 00				 CMP	 AL,	 0
-    104	    000F  74 08	90 90			 JZ	 @@E
-    105	    0013  E8 000E			 CALL	 PUTC
-    106	    0016  46				 INC	 SI
-    107	    0017  EB EC				 JMP	 SHORT @@L
-    108						 ; Переход на следующую строку
-    109	    0019  B0 0D			 @@E:	 MOV	 AL, 13
-    110	    001B  E8 0006			 CALL	 PUTC
-    111	    001E  B0 0A				 MOV	 AL, 10
-    112	    0020  E8 0001			 CALL	 PUTC
-    113	    0023  C3			 @@R:	 RET
-    114	    0024			 PUTSS	 ENDP
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 3
+1    58					 getElement MACRO
+1    59							 ;;;
+1    60						 push bx
+1    61						 xor eax,eax
+1    62						 mov al, byte ptr[edi]
+1    63						 mov bl, 18
+1    64						 mul bl
+1    65						 pop bx
+1    66						 ;;;
+1    67							 ENDM
+1    68					 ClearMas MACRO	STRING
+1    69						 push esi
+1    70						 lea esi, STRING
+1    71						 call clearMassive
+1    72						 pop esi
+1    73							 ENDM
+1    74					 CheckStr MACRO	STRING
+1    75						 call checkOnDot
+1    76						 cmp eax, 1
+1    77						 jne inputError
+1    78						 call checkOnSize
+1    79						 cmp eax, -1
+1    80						 je inputError
+1    81						 call checkOnNumber
+1    82						 cmp eax, -1
+1    83						 je inputError
+1    84							 ENDM
+1    85
+1    86
+1    87
+     88
+     89					  LOCALS
+     90
+     91					 ;==============================================
+     92					 ; Подпрограмма ввода символа в AL с терминала
+     93					 ;==============================================
+     94	    0000			 GETCH	 PROC	 NEAR
+     95	    0000  B4 08				 MOV	 AH,   8
+     96	    0002  CD 21				 INT	 21h
+     97	    0004  C3				 RET
+     98	    0005			 GETCH	 ENDP
+     99					 ;=====================================================
+    100					 ; Подпрограмма вывода на экран строки, адресуемой +
+    101					 SI,
+    102					 ; с задержкой времени	между символами в <CX,DX> mcs.
+    103					 ; Завершителями строки являеются байты 0 или 0FFh.
+    104					 ; ЕСЛИ строка заканчивается байтом 0,
+    105					 ;   ТО добавляется переход	в начало	новой строки
+    106					 ;
+    107					 ;=====================================================
+    108	    0005			 PUTSS	 PROC	 NEAR
+    109	    0005  8A 04			 @@L:	 MOV	 AL,	 [SI]
+    110	    0007  3C FF				 CMP	 AL,	 0FFH
+    111	    0009  74 18	90 90			 JE	 @@R
+    112	    000D  3C 00				 CMP	 AL,	 0
+    113	    000F  74 08	90 90			 JZ	 @@E
+    114	    0013  E8 000E			 CALL	 PUTC
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 3
 func.ASM
 
 
 
-    115
-    116					 ;==============================================
-    117					 ; Подпрограмма вывода AL на терминал
-    118					 ;==============================================
-    119	    0024			 PUTC	 PROC	 NEAR
-    120	    0024  52				 PUSH	 DX
-    121	    0025  8A D0				 MOV	 DL,   AL
-    122	    0027  B4 02				 MOV	 AH,   2
-    123	    0029  CD 21				 INT	 21h
-    124	    002B  5A				 POP	 DX
-    125	    002C  C3				 RET
-    126	    002D			 PUTC	 ENDP
-    127
-    128
-    129
-    130					 ;==============================================
-    131					 ; Подпрограмма вывода числа на экран в
-    132					 ; в десятичном виде из регистра AX
-    133					 ;==============================================
-    134	    002D			 BINtoDEC	 PROC	 NEAR
-    135	    002D  51				 push cx
-    136	    002E  52				 push dx
-    137	    002F  50				 push ax
+    115	    0016  46				 INC	 SI
+    116	    0017  EB EC				 JMP	 SHORT @@L
+    117						 ; Переход на следующую строку
+    118	    0019  B0 0D			 @@E:	 MOV	 AL, 13
+    119	    001B  E8 0006			 CALL	 PUTC
+    120	    001E  B0 0A				 MOV	 AL, 10
+    121	    0020  E8 0001			 CALL	 PUTC
+    122	    0023  C3			 @@R:	 RET
+    123	    0024			 PUTSS	 ENDP
+    124
+    125					 ;==============================================
+    126					 ; Подпрограмма вывода AL на терминал
+    127					 ;==============================================
+    128	    0024			 PUTC	 PROC	 NEAR
+    129	    0024  52				 PUSH	 DX
+    130	    0025  8A D0				 MOV	 DL,   AL
+    131	    0027  B4 02				 MOV	 AH,   2
+    132	    0029  CD 21				 INT	 21h
+    133	    002B  5A				 POP	 DX
+    134	    002C  C3				 RET
+    135	    002D			 PUTC	 ENDP
+    136
+    137
     138
-    139	    0030  33 C9			     xor cx, cx
-    140	    0032				 decr:
-    141	    0032  41			     inc cx
-    142	    0033  33 D2			     xor dx, dx
-    143	    0035  BB 000A		     mov bx, 10
-    144	    0038  F7 F3			     div bx
-    145	    003A  52			     push dx
-    146	    003B  3D 0000		     cmp ax, 0
-    147	    003E  75 F2			     jne decr
-    148
-    149	    0040				 print:
-    150	    0040  B4 02			     mov ah, 02h
-    151	    0042  33 D2			     xor dx, dx
-    152	    0044  5A			     pop dx
-    153	    0045  83 C2	30		     add dx, '0'
-    154	    0048  CD 21			     int 21h
-    155	    004A  E2 F4			     loop print
-    156
-    157	    004C  58				 pop ax
-    158	    004D  5A				 pop dx
-    159	    004E  59				 pop cx
-    160	    004F  C3					 ret
-    161	    0050			 BINtoDEC	 ENDP
-    162					 ;==============================================
-    163					 ; Подпрограмма проверки строки на содержание	    +
-    164					 одной точки
-    165					 ; input - esi - адресс строки
-    166					 ;==============================================
-    167	    0050			 checkOnDot	 PROC	 NEAR
-    168	    0050  66| 56			 push esi
-    169
-    170	    0052  66| 33 C0			 xor eax, eax
-    171	    0055  66| 83 C6 02			 add esi, 2
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 4
+    139					 ;==============================================
+    140					 ; Подпрограмма вывода числа на экран в
+    141					 ; в десятичном виде из регистра AX
+    142					 ;==============================================
+    143	    002D			 BINtoDEC	 PROC	 NEAR
+    144	    002D  51				 push cx
+    145	    002E  52				 push dx
+    146	    002F  50				 push ax
+    147
+    148	    0030  33 C9			     xor cx, cx
+    149	    0032				 decr:
+    150	    0032  41			     inc cx
+    151	    0033  33 D2			     xor dx, dx
+    152	    0035  BB 000A		     mov bx, 10
+    153	    0038  F7 F3			     div bx
+    154	    003A  52			     push dx
+    155	    003B  3D 0000		     cmp ax, 0
+    156	    003E  75 F2			     jne decr
+    157
+    158	    0040				 print:
+    159	    0040  B4 02			     mov ah, 02h
+    160	    0042  33 D2			     xor dx, dx
+    161	    0044  5A			     pop dx
+    162	    0045  83 C2	30		     add dx, '0'
+    163	    0048  CD 21			     int 21h
+    164	    004A  E2 F4			     loop print
+    165
+    166	    004C  58				 pop ax
+    167	    004D  5A				 pop dx
+    168	    004E  59				 pop cx
+    169	    004F  C3					 ret
+    170	    0050			 BINtoDEC	 ENDP
+    171					 ;==============================================
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 4
 func.ASM
 
 
 
-    172	    0059				 startCheck:
-    173	    0059  67| 80 3E 00			 cmp byte ptr[esi], 0
-    174	    005D  74 14	90 90			 je endCheck
-    175	    0061  67| 80 3E 2E			 cmp byte ptr[esi], '.'
-    176	    0065  75 08	90 90			 jne middleCheck1
-    177	    0069  66| 40			 inc eax
-    178	    006B  66| 46			 inc esi
-    179	    006D  EB EA				 jmp startCheck
-    180	    006F				 middleCheck1:
-    181	    006F  66| 46			 inc esi
-    182	    0071  EB E6				 jmp startCheck
-    183
-    184	    0073				 endCheck:
-    185	    0073  66| 5E			 pop esi
-    186	    0075  C3				 ret
-    187	    0076			 checkOnDot	 ENDP
-    188					 ;==============================================
-    189					 ; Подпрограмма проверки строки на				    +
-    190					 непереполненность
-    191					 ; input - esi - адресс строки
-    192					 ;==============================================
-    193	    0076			 checkOnSize	 PROC	 NEAR
-    194	    0076  66| 56			 push esi
-    195
-    196	    0078  66| 33 C0			 xor eax, eax
-    197	    007B  66| 83 C6 02			 add esi, 2
-    198						 ;проверка на	минус
-    199	    007F  67| 80 3E 2D			 cmp byte ptr[esi], '-'
-    200	    0083  75 04	90 90			 jne CheckInteger
-    201	    0087  66| 46			 inc esi
-    202
-    203	    0089				 CheckInteger:
-    204	    0089  67| 80 3E 2E			 cmp byte ptr[esi], '.'
-    205	    008D  74 08	90 90			 je CheckReal
-    206	    0091  66| 40			 inc eax
-    207	    0093  66| 46			 inc esi
-    208	    0095  EB F2				 jmp CheckInteger
-    209
-    210	    0097				 CheckReal:
-    211	    0097  66| 46			 inc esi
-    212	    0099  66| 83 F8 0A			 cmp eax, 10
-    213	    009D  7F 1B	90 90			 jg errorSize
-    214
-    215	    00A1  66| 33 C0			 xor eax, eax
-    216	    00A4				 CheckReal1:
-    217	    00A4  67| 80 3E 00			 cmp byte ptr[esi], 0
-    218	    00A8  74 08	90 90			 je endCheckReal
-    219	    00AC  66| 40			 inc eax
-    220	    00AE  66| 46			 inc esi
-    221	    00B0  EB F2				 jmp CheckReal1
-    222
-    223	    00B2				 endCheckReal:
-    224	    00B2  66| 83 F8 07			 cmp eax, 7
-    225	    00B6  7E 08	90 90			 jle endCheckSize
-    226
-    227	    00BA				 errorSize:
-    228	    00BA  66| B8 FFFFFFFF		 mov eax, -1
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 5
+    172					 ; Подпрограмма проверки строки на содержание	    +
+    173					 одной точки
+    174					 ; input - esi - адресс строки
+    175					 ;==============================================
+    176	    0050			 checkOnDot	 PROC	 NEAR
+    177	    0050  66| 56			 push esi
+    178
+    179	    0052  66| 33 C0			 xor eax, eax
+    180	    0055  66| 83 C6 02			 add esi, 2
+    181	    0059				 startCheck:
+    182	    0059  67| 80 3E 00			 cmp byte ptr[esi], 0
+    183	    005D  74 14	90 90			 je endCheck
+    184	    0061  67| 80 3E 2E			 cmp byte ptr[esi], '.'
+    185	    0065  75 08	90 90			 jne middleCheck1
+    186	    0069  66| 40			 inc eax
+    187	    006B  66| 46			 inc esi
+    188	    006D  EB EA				 jmp startCheck
+    189	    006F				 middleCheck1:
+    190	    006F  66| 46			 inc esi
+    191	    0071  EB E6				 jmp startCheck
+    192
+    193	    0073				 endCheck:
+    194	    0073  66| 5E			 pop esi
+    195	    0075  C3				 ret
+    196	    0076			 checkOnDot	 ENDP
+    197					 ;==============================================
+    198					 ; Подпрограмма проверки строки на				    +
+    199					 непереполненность
+    200					 ; input - esi - адресс строки
+    201					 ;==============================================
+    202	    0076			 checkOnSize	 PROC	 NEAR
+    203	    0076  66| 56			 push esi
+    204
+    205	    0078  66| 33 C0			 xor eax, eax
+    206	    007B  66| 83 C6 02			 add esi, 2
+    207						 ;проверка на	минус
+    208	    007F  67| 80 3E 2D			 cmp byte ptr[esi], '-'
+    209	    0083  75 04	90 90			 jne CheckInteger
+    210	    0087  66| 46			 inc esi
+    211
+    212	    0089				 CheckInteger:
+    213	    0089  67| 80 3E 2E			 cmp byte ptr[esi], '.'
+    214	    008D  74 08	90 90			 je CheckReal
+    215	    0091  66| 40			 inc eax
+    216	    0093  66| 46			 inc esi
+    217	    0095  EB F2				 jmp CheckInteger
+    218
+    219	    0097				 CheckReal:
+    220	    0097  66| 46			 inc esi
+    221	    0099  66| 83 F8 0A			 cmp eax, 10
+    222	    009D  7F 1B	90 90			 jg errorSize
+    223
+    224	    00A1  66| 33 C0			 xor eax, eax
+    225	    00A4				 CheckReal1:
+    226	    00A4  67| 80 3E 00			 cmp byte ptr[esi], 0
+    227	    00A8  74 08	90 90			 je endCheckReal
+    228	    00AC  66| 40			 inc eax
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 5
 func.ASM
 
 
 
-    229
-    230	    00C0				 endCheckSize:
-    231	    00C0  66| 5E			 pop esi
-    232	    00C2  C3				 ret
-    233	    00C3			 checkOnSize	 ENDP
-    234					 ;==============================================
-    235					 ; Подпрограмма проверки строки ввод цифр
-    236					 ; input - esi - адресс строки
-    237					 ;==============================================
-    238	    00C3			 checkOnNumber	 PROC	 NEAR
-    239	    00C3  66| 56			 push esi
-    240	    00C5  66| 33 C0			 xor eax, eax
-    241	    00C8  66| 83 C6 02			 add esi, 2
-    242						 ;проверка на	минус
-    243	    00CC  67| 80 3E 2D			 cmp byte ptr[esi], '-'
-    244	    00D0  75 04	90 90			 jne CheckNumber
-    245	    00D4  66| 46			 inc esi
-    246	    00D6				 CheckNumber:
-    247	    00D6  67| 80 3E 00			 cmp byte ptr[esi], 0
-    248	    00DA  74 24	90 90			 je endCheckNumber
-    249	    00DE  67| 80 3E 2E			 cmp byte ptr[esi], '.'
-    250	    00E2  74 12	90 90			 je incrementESI
-    251	    00E6  67| 80 3E 30			 cmp byte ptr[esi], '0'
-    252	    00EA  7C 0E	90 90			 jl errorNumber
-    253	    00EE  67| 80 3E 39			 cmp byte ptr[esi], '9'
-    254	    00F2  7F 06	90 90			 jg errorNumber
-    255
-    256	    00F6				 incrementESI:
-    257	    00F6  66| 46			 inc esi
-    258	    00F8  EB DC				 jmp CheckNumber
-    259
-    260	    00FA				 errorNumber:
-    261	    00FA  66| B8 FFFFFFFF		 mov eax, -1
-    262
-    263	    0100				 endCheckNumber:
-    264	    0100  66| 5E			 pop esi
-    265	    0102  C3				 ret
-    266	    0103			 checkOnNumber	 ENDP
-    267					 ;==============================================
-    268					 ; Подпрограмма записи из буферной строки
-    269					 ; в массив структур
-    270					 ; input - esi - адрес строки
-    271					 ;		   edi - адрес структуры
-    272					 ;==============================================
-    273	    0103			 bufferToStruct	 PROC	 NEAR
-    274	    0103  66| 56		     push esi
-    275	    0105  66| 57			 push edi
-    276	    0107  66| 52			 push edx
-    277	    0109  66| 50			 push eax
-    278
-    279	    010B  66| 8B C7			 mov eax, edi
-    280	    010E  66| 33 D2			 xor edx, edx
-    281	    0111  66| 83 C6 02			 add esi, 2
-    282
-    283	    0115				 sign:
-    284	    0115  67| 80 3E 2D			 cmp byte ptr[esi], '-'
-    285	    0119  75 0A	90 90			 jne integer
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 6
+    229	    00AE  66| 46			 inc esi
+    230	    00B0  EB F2				 jmp CheckReal1
+    231
+    232	    00B2				 endCheckReal:
+    233	    00B2  66| 83 F8 07			 cmp eax, 7
+    234	    00B6  7E 08	90 90			 jle endCheckSize
+    235
+    236	    00BA				 errorSize:
+    237	    00BA  66| B8 FFFFFFFF		 mov eax, -1
+    238
+    239	    00C0				 endCheckSize:
+    240	    00C0  66| 5E			 pop esi
+    241	    00C2  C3				 ret
+    242	    00C3			 checkOnSize	 ENDP
+    243					 ;==============================================
+    244					 ; Подпрограмма проверки строки ввод цифр
+    245					 ; input - esi - адресс строки
+    246					 ;==============================================
+    247	    00C3			 checkOnNumber	 PROC	 NEAR
+    248	    00C3  66| 56			 push esi
+    249	    00C5  66| 33 C0			 xor eax, eax
+    250	    00C8  66| 83 C6 02			 add esi, 2
+    251						 ;проверка на	минус
+    252	    00CC  67| 80 3E 2D			 cmp byte ptr[esi], '-'
+    253	    00D0  75 04	90 90			 jne CheckNumber
+    254	    00D4  66| 46			 inc esi
+    255	    00D6				 CheckNumber:
+    256	    00D6  67| 80 3E 00			 cmp byte ptr[esi], 0
+    257	    00DA  74 24	90 90			 je endCheckNumber
+    258	    00DE  67| 80 3E 2E			 cmp byte ptr[esi], '.'
+    259	    00E2  74 12	90 90			 je incrementESI
+    260	    00E6  67| 80 3E 30			 cmp byte ptr[esi], '0'
+    261	    00EA  7C 0E	90 90			 jl errorNumber
+    262	    00EE  67| 80 3E 39			 cmp byte ptr[esi], '9'
+    263	    00F2  7F 06	90 90			 jg errorNumber
+    264
+    265	    00F6				 incrementESI:
+    266	    00F6  66| 46			 inc esi
+    267	    00F8  EB DC				 jmp CheckNumber
+    268
+    269	    00FA				 errorNumber:
+    270	    00FA  66| B8 FFFFFFFF		 mov eax, -1
+    271
+    272	    0100				 endCheckNumber:
+    273	    0100  66| 5E			 pop esi
+    274	    0102  C3				 ret
+    275	    0103			 checkOnNumber	 ENDP
+    276					 ;==============================================
+    277					 ; Подпрограмма записи из буферной строки
+    278					 ; в массив структур
+    279					 ; input - esi - адрес строки
+    280					 ;		   edi - адрес структуры
+    281					 ;==============================================
+    282	    0103			 bufferToStruct	 PROC	 NEAR
+    283	    0103  66| 56		     push esi
+    284	    0105  66| 57			 push edi
+    285	    0107  66| 52			 push edx
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 6
 func.ASM
 
 
 
-    286	    011D  67| 8A 16			 mov dl, byte ptr[esi]
-    287	    0120  67| 88 17			 mov byte ptr[edi], dl
-    288	    0123  66| 46			 inc esi
-    289
-    290	    0125				 integer:
-    291	    0125  66| 47			 inc edi
-    292	    0127				 integer1:
-    293	    0127  67| 80 3E 2E			 cmp byte ptr[esi], '.'
-    294	    012B  74 0E	90 90			 je real
-    295
-    296	    012F  67| 8A 16			 mov dl, byte ptr[esi]
-    297	    0132  67| 88 17			 mov byte ptr[edi], dl
-    298	    0135  66| 46			 inc esi
-    299	    0137  66| 47			 inc edi
-    300	    0139  EB EC				 jmp integer1
-    301
-    302	    013B				 real:
-    303	    013B  66| 46			 inc esi
-    304	    013D  66| 8B F8			 mov edi, eax
-    305	    0140  66| 83 C7 0B			 add edi, 11
-    306	    0144				 real1:
-    307	    0144  67| 80 3E 00			 cmp byte ptr[esi], 0
-    308	    0148  74 0E	90 90			 je endCycle
-    309
-    310	    014C  67| 8A 16			 mov dl, byte ptr[esi]
-    311	    014F  67| 88 17			 mov byte ptr[edi], dl
-    312	    0152  66| 46			 inc esi
-    313	    0154  66| 47			 inc edi
-    314	    0156  EB EC				 jmp real1
-    315
-    316
-    317	    0158				 endCycle:
-    318	    0158  66| 58			 pop eax
-    319	    015A  66| 5A			 pop edx
-    320	    015C  66| 5F			 pop edi
-    321	    015E  66| 5E			 pop esi
-    322	    0160  C3					 ret
-    323	    0161			 bufferToStruct	 ENDP
-    324					 ;==============================================
-    325					 ; Подпрограмма очистки массива
-    326					 ; input esi - адрес массива
-    327					 ;==============================================
-    328	    0161			 clearMassive	 PROC	 NEAR
-    329	    0161				 startClear:
-    330	    0161  67| 80 7E 02 00		 cmp byte ptr[esi+2], 0
-    331	    0166  74 0B	90 90			 je exitClear
-    332	    016A  67| C6 46 02 00		 mov byte ptr[esi+2], 0
-    333	    016F  66| 46			 inc esi
-    334	    0171  EB EE				 jmp startClear
-    335
-    336	    0173				 exitClear:
-    337	    0173  C3				 ret
-    338	    0174			 clearMassive	 ENDP
-    339
-    340
-    341					 ;==============================================
-    342					 ; Подпрограмма вывода массива
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 7
+    286	    0109  66| 50			 push eax
+    287
+    288	    010B  66| 8B C7			 mov eax, edi
+    289	    010E  66| 33 D2			 xor edx, edx
+    290	    0111  66| 83 C6 02			 add esi, 2
+    291
+    292	    0115				 sign:
+    293	    0115  67| 80 3E 2D			 cmp byte ptr[esi], '-'
+    294	    0119  75 0A	90 90			 jne integer
+    295	    011D  67| 8A 16			 mov dl, byte ptr[esi]
+    296	    0120  67| 88 17			 mov byte ptr[edi], dl
+    297	    0123  66| 46			 inc esi
+    298
+    299	    0125				 integer:
+    300	    0125  66| 47			 inc edi
+    301	    0127				 integer1:
+    302	    0127  67| 80 3E 2E			 cmp byte ptr[esi], '.'
+    303	    012B  74 0E	90 90			 je real
+    304
+    305	    012F  67| 8A 16			 mov dl, byte ptr[esi]
+    306	    0132  67| 88 17			 mov byte ptr[edi], dl
+    307	    0135  66| 46			 inc esi
+    308	    0137  66| 47			 inc edi
+    309	    0139  EB EC				 jmp integer1
+    310
+    311	    013B				 real:
+    312	    013B  66| 46			 inc esi
+    313	    013D  66| 8B F8			 mov edi, eax
+    314	    0140  66| 83 C7 0B			 add edi, 11
+    315	    0144				 real1:
+    316	    0144  67| 80 3E 00			 cmp byte ptr[esi], 0
+    317	    0148  74 0E	90 90			 je endCycle
+    318
+    319	    014C  67| 8A 16			 mov dl, byte ptr[esi]
+    320	    014F  67| 88 17			 mov byte ptr[edi], dl
+    321	    0152  66| 46			 inc esi
+    322	    0154  66| 47			 inc edi
+    323	    0156  EB EC				 jmp real1
+    324
+    325
+    326	    0158				 endCycle:
+    327	    0158  66| 58			 pop eax
+    328	    015A  66| 5A			 pop edx
+    329	    015C  66| 5F			 pop edi
+    330	    015E  66| 5E			 pop esi
+    331	    0160  C3					 ret
+    332	    0161			 bufferToStruct	 ENDP
+    333					 ;==============================================
+    334					 ; Подпрограмма очистки массива
+    335					 ; input esi - адрес массива
+    336					 ;==============================================
+    337	    0161			 clearMassive	 PROC	 NEAR
+    338	    0161				 startClear:
+    339	    0161  67| 80 7E 02 00		 cmp byte ptr[esi+2], 0
+    340	    0166  74 0B	90 90			 je exitClear
+    341	    016A  67| C6 46 02 00		 mov byte ptr[esi+2], 0
+    342	    016F  66| 46			 inc esi
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 7
 func.ASM
 
 
 
-    343					 ;==============================================
-    344	    0174			 OutMassive	 PROC	 NEAR
-    345	    0174			     M01:
-    346	    0174  80 7C	02 24			 cmp byte ptr[si+2], '$'
-    347	    0178  74 0C	90 90			 je endOf
-    348	    017C  B4 02				 mov ah, 02h
-    349	    017E  8A 54	02			 mov dl, byte ptr[si+2]
-    350	    0181  CD 21				 int 21h
-    351	    0183  46				 inc SI
-    352	    0184  EB EE				 jmp M01
-    353	    0186				 endOf:
-    354	    0186  C3				 ret
-    355	    0187			 OutMassive	 ENDP
-    356
-    357					 ;=================================================
-    358					 ; Процедура для перевода строки в десятичное число
-    359					 ;
-    360					 ; Входные данные:	SI - адрес	строки
-    361					 ; Выходные данные: AX - десятеричное	число
-    362					 ;=================================================
-    363	    0187			 ATOI	 PROC	 NEAR
-    364	    0187  53				 PUSH	 BX
-    365	    0188  56				 PUSH si
-    366	    0189  33 DB				 XOR	 BX,	 BX
-    367	    018B  33 C0				 XOR	 AX,	 AX
-    368
-    369	    018D				 @@CONVERT:
-    370	    018D  8A 5C	02				 MOV	 BL,	 [SI + 2]
-    371	    0190  80 FB	00				 CMP	 BL,	 0
-    372	    0193  74 1E	90 90				 JZ	 @@EXIT
-    373
-    374	    0197  80 FB	30				 CMP	 BL,	 '0'
-    375	    019A  7C 14	90 90				 JL	 @@ERROR
-    376	    019E  80 FB	39				 CMP	 BL,	 '9'
-    377	    01A1  7F 0D	90 90				 JG	 @@ERROR
-    378
-    379	    01A5  80 EB	30				 SUB	 BL,	 '0'
-    380	    01A8  6B C0	0A				 IMUL	 AX,	 10
-    381	    01AB  03 C3					 ADD	 AX, BX
+    343	    0171  EB EE				 jmp startClear
+    344
+    345	    0173				 exitClear:
+    346	    0173  C3				 ret
+    347	    0174			 clearMassive	 ENDP
+    348
+    349
+    350					 ;==============================================
+    351					 ; Подпрограмма вывода массива
+    352					 ;==============================================
+    353	    0174			 OutMassive	 PROC	 NEAR
+    354	    0174			     M01:
+    355	    0174  80 7C	02 24			 cmp byte ptr[si+2], '$'
+    356	    0178  74 0C	90 90			 je endOf
+    357	    017C  B4 02				 mov ah, 02h
+    358	    017E  8A 54	02			 mov dl, byte ptr[si+2]
+    359	    0181  CD 21				 int 21h
+    360	    0183  46				 inc SI
+    361	    0184  EB EE				 jmp M01
+    362	    0186				 endOf:
+    363	    0186  C3				 ret
+    364	    0187			 OutMassive	 ENDP
+    365
+    366					 ;=================================================
+    367					 ; Процедура для перевода строки в десятичное число
+    368					 ;
+    369					 ; Входные данные:	SI - адрес	строки
+    370					 ; Выходные данные: AX - десятеричное	число
+    371					 ;=================================================
+    372	    0187			 ATOI	 PROC	 NEAR
+    373	    0187  53				 PUSH	 BX
+    374	    0188  56				 PUSH si
+    375	    0189  33 DB				 XOR	 BX,	 BX
+    376	    018B  33 C0				 XOR	 AX,	 AX
+    377
+    378	    018D				 @@CONVERT:
+    379	    018D  8A 5C	02				 MOV	 BL,	 [SI + 2]
+    380	    0190  80 FB	00				 CMP	 BL,	 0
+    381	    0193  74 1E	90 90				 JZ	 @@EXIT
     382
-    383	    01AD  46					 INC	 SI
-    384	    01AE  EB DD					 JMP	 @@CONVERT
-    385
-    386	    01B0				 @@ERROR:
-    387	    01B0  B8 FFFF				 MOV	 AX, -1
-    388	    01B3				 @@EXIT:
-    389	    01B3  5E					 POP si
-    390	    01B4  5B					 POP	 BX
-    391	    01B5  C3					 RET
-    392	    01B6			 ATOI	 ENDP
-    393
-    394					 ;=================================================
-    395					 ; Процедура умножения на 5
-    396					 ; input - edi - адрес массива
-    397					 ;=================================================
-    398	    01B6			 MulFive PROC	 NEAR
-    399	    01B6  66| 57			 push edi
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 8
+    383	    0197  80 FB	30				 CMP	 BL,	 '0'
+    384	    019A  7C 14	90 90				 JL	 @@ERROR
+    385	    019E  80 FB	39				 CMP	 BL,	 '9'
+    386	    01A1  7F 0D	90 90				 JG	 @@ERROR
+    387
+    388	    01A5  80 EB	30				 SUB	 BL,	 '0'
+    389	    01A8  6B C0	0A				 IMUL	 AX,	 10
+    390	    01AB  03 C3					 ADD	 AX, BX
+    391
+    392	    01AD  46					 INC	 SI
+    393	    01AE  EB DD					 JMP	 @@CONVERT
+    394
+    395	    01B0				 @@ERROR:
+    396	    01B0  B8 FFFF				 MOV	 AX, -1
+    397	    01B3				 @@EXIT:
+    398	    01B3  5E					 POP si
+    399	    01B4  5B					 POP	 BX
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 8
 func.ASM
 
 
 
-    400	    01B8  66| 51			 push ecx
-    401	    01BA  66| 53			 push ebx
-    402	    01BC  66| 50			 push eax
-    403	    01BE  66| 52			 push edx
-    404
-    405	    01C0  66| 8B CF			 mov ecx, edi
-    406	    01C3  66| 83 C7 11			 add edi, 17
-    407	    01C7  B0 00				 mov al, 0
-    408	    01C9				 startMulFive:
-    409	    01C9  66| 3B F9			 cmp edi, ecx
-    410	    01CC  74 1F	90 90			 je endMulFive
-    411
-    412
-    413	    01D0  67| 80 3F 30			 cmp byte ptr[edi], '0'
-    414	    01D4  7C 13	90 90			 jl YUI
-    415	    01D8  67| 80 3F 39			 cmp byte ptr[edi], '9'
-    416	    01DC  7F 0B	90 90			 jg YUI
-    417
-    418	    01E0  67| 8A 17			 mov dl, byte ptr[edi]
-    419	    01E3  E8 0033			 call calcFive
+    400	    01B5  C3					 RET
+    401	    01B6			 ATOI	 ENDP
+    402
+    403					 ;=================================================
+    404					 ; Процедура умножения на 5
+    405					 ; input - edi - адрес массива
+    406					 ;=================================================
+    407	    01B6			 MulFive PROC	 NEAR
+    408	    01B6  66| 57			 push edi
+    409	    01B8  66| 51			 push ecx
+    410	    01BA  66| 53			 push ebx
+    411	    01BC  66| 50			 push eax
+    412	    01BE  66| 52			 push edx
+    413
+    414	    01C0  66| 8B CF			 mov ecx, edi
+    415	    01C3  66| 83 C7 11			 add edi, 17
+    416	    01C7  B0 00				 mov al, 0
+    417	    01C9				 startMulFive:
+    418	    01C9  66| 3B F9			 cmp edi, ecx
+    419	    01CC  74 1F	90 90			 je endMulFive
     420
-    421	    01E6  67| 88 17			 mov byte ptr[edi] , dl
-    422
-    423	    01E9				 YUI:
-    424	    01E9  66| 4F			 dec edi
-    425	    01EB  EB DC				 jmp startMulFive
-    426	    01ED				 endMulFive:
-    427
-    428	    01ED  3C 00				 cmp al, 0
-    429	    01EF  74 1D	90 90			 je endMulFive1
-    430	    01F3  66| 83 C1 0A			 add ecx, 10
-    431	    01F7  04 30				 add al, '0'
-    432	    01F9				 wqer:
-    433	    01F9  66| 3B F9			 cmp edi, ecx
-    434	    01FC  74 10	90 90			 je endMulFive1
-    435
-    436	    0200  67| 8A 5F 01			 mov bl, byte ptr[edi+1]
-    437	    0204  67| 88 47 01			 mov byte ptr[edi+1] , al
-    438	    0208  8A C3				 mov al, bl
-    439
-    440	    020A  66| 47			 inc edi
-    441	    020C  EB EB				 jmp wqer
-    442	    020E				 endMulFive1:
-    443
-    444	    020E  66| 5A			 pop edx
-    445	    0210  66| 58			 pop eax
-    446	    0212  66| 5B			 pop ebx
-    447	    0214  66| 59			 pop ecx
-    448	    0216  66| 5F			 pop edi
-    449	    0218  C3					 RET
-    450	    0219			 MulFive ENDP
-    451					 ;=================================================
-    452					 ; умножение на 5 символа
-    453					 ; input - dl -	цифра
-    454					 ;=================================================
-    455	    0219			 calcFive	 PROC	 NEAR
-    456	    0219  50				 push ax
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 9
+    421
+    422	    01D0  67| 80 3F 30			 cmp byte ptr[edi], '0'
+    423	    01D4  7C 13	90 90			 jl YUI
+    424	    01D8  67| 80 3F 39			 cmp byte ptr[edi], '9'
+    425	    01DC  7F 0B	90 90			 jg YUI
+    426
+    427	    01E0  67| 8A 17			 mov dl, byte ptr[edi]
+    428	    01E3  E8 0033			 call calcFive
+    429
+    430	    01E6  67| 88 17			 mov byte ptr[edi] , dl
+    431
+    432	    01E9				 YUI:
+    433	    01E9  66| 4F			 dec edi
+    434	    01EB  EB DC				 jmp startMulFive
+    435	    01ED				 endMulFive:
+    436
+    437	    01ED  3C 00				 cmp al, 0
+    438	    01EF  74 1D	90 90			 je endMulFive1
+    439	    01F3  66| 83 C1 0A			 add ecx, 10
+    440	    01F7  04 30				 add al, '0'
+    441	    01F9				 wqer:
+    442	    01F9  66| 3B F9			 cmp edi, ecx
+    443	    01FC  74 10	90 90			 je endMulFive1
+    444
+    445	    0200  67| 8A 5F 01			 mov bl, byte ptr[edi+1]
+    446	    0204  67| 88 47 01			 mov byte ptr[edi+1] , al
+    447	    0208  8A C3				 mov al, bl
+    448
+    449	    020A  66| 47			 inc edi
+    450	    020C  EB EB				 jmp wqer
+    451	    020E				 endMulFive1:
+    452
+    453	    020E  66| 5A			 pop edx
+    454	    0210  66| 58			 pop eax
+    455	    0212  66| 5B			 pop ebx
+    456	    0214  66| 59			 pop ecx
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 9
 func.ASM
 
 
 
-    457	    021A  80 EA	30			 sub dl, '0'
-    458	    021D  8A C2				 mov al, dl
-    459	    021F  B3 05				 mov bl, 5
-    460	    0221  F6 E3				 mul bl
-    461	    0223  02 D0				 add dl, al
-    462	    0225  5B				 pop bx
-    463	    0226  02 C3				 add al, bl
-    464	    0228  B3 0A				 mov bl, 10
-    465	    022A  F6 F3				 div bl
-    466	    022C  8A D4				 mov dl, ah
-    467	    022E  80 C2	30			 add dl, '0'
-    468
-    469	    0231  C3					 RET
-    470	    0232			 calcFive	 ENDP
-    471					 ;=================================================
-    472					 ; Процедура сложения двух	операндов
-    473					 ; к большему - меньший
-    474					 ; input - edi и esi -	элементы массива
-    475					 ;=================================================
-    476	    0232			 sumOperand	 PROC	 NEAR
-    477	    0232  66| 50			 push eax
-    478	    0234  66| 57			 push edi
-    479	    0236  66| 56			 push esi
-    480
-    481	    0238  66| 8B CF			 mov ecx, edi
-    482	    023B  66| 83 C7 11			 add edi, 17
-    483	    023F  66| 83 C6 11			 add esi, 17
-    484	    0243  B2 00				 mov dl, 0
-    485	    0245  B4 00				 mov ah, 0
-    486	    0247  B7 00				 mov bh, 0
-    487	    0249  EB 05	90			 jmp startSum
-    488
-    489	    024C				 decrementSum:
-    490	    024C  66| 4F			 dec edi
-    491	    024E  66| 4E			 dec esi
-    492	    0250				 startSum:
-    493
-    494	    0250  66| 3B F9			 cmp edi, ecx
-    495	    0253  74 37	90 90			 je endSumOperation
-    496
-    497	    0257  67| 80 3F 39			 cmp byte ptr[edi], '9'
-    498	    025B  7F 0B	90 90			 jg firstSign
-    499	    025F  67| 80 3E 39			 cmp byte ptr[esi], '9'
-    500	    0263  7F E7				 jg decrementSum
-    501	    0265  EB 20	90			 jmp calc
+    457	    0216  66| 5F			 pop edi
+    458	    0218  C3					 RET
+    459	    0219			 MulFive ENDP
+    460					 ;=================================================
+    461					 ; умножение на 5 символа
+    462					 ; input - dl -	цифра
+    463					 ;=================================================
+    464	    0219			 calcFive	 PROC	 NEAR
+    465	    0219  50				 push ax
+    466	    021A  80 EA	30			 sub dl, '0'
+    467	    021D  8A C2				 mov al, dl
+    468	    021F  B3 05				 mov bl, 5
+    469	    0221  F6 E3				 mul bl
+    470	    0223  02 D0				 add dl, al
+    471	    0225  5B				 pop bx
+    472	    0226  02 C3				 add al, bl
+    473	    0228  B3 0A				 mov bl, 10
+    474	    022A  F6 F3				 div bl
+    475	    022C  8A D4				 mov dl, ah
+    476	    022E  80 C2	30			 add dl, '0'
+    477
+    478	    0231  C3					 RET
+    479	    0232			 calcFive	 ENDP
+    480					 ;=================================================
+    481					 ; Процедура сложения двух	операндов
+    482					 ; к большему - меньший
+    483					 ; input - edi и esi -	элементы массива
+    484					 ;=================================================
+    485	    0232			 sumOperand	 PROC	 NEAR
+    486	    0232  66| 50			 push eax
+    487	    0234  66| 57			 push edi
+    488	    0236  66| 56			 push esi
+    489
+    490	    0238  66| 8B CF			 mov ecx, edi
+    491	    023B  66| 83 C7 11			 add edi, 17
+    492	    023F  66| 83 C6 11			 add esi, 17
+    493	    0243  B2 00				 mov dl, 0
+    494	    0245  B4 00				 mov ah, 0
+    495	    0247  B7 00				 mov bh, 0
+    496	    0249  EB 05	90			 jmp startSum
+    497
+    498	    024C				 decrementSum:
+    499	    024C  66| 4F			 dec edi
+    500	    024E  66| 4E			 dec esi
+    501	    0250				 startSum:
     502
-    503	    0268				 firstSign:
-    504	    0268  67| 80 3E 39			 cmp byte ptr[esi], '9'
-    505	    026C  7E 19	90 90			 jle calc
-    506	    0270				 temp:
-    507	    0270  67| 80 3F 7C			 cmp byte ptr[edi], '|'
-    508	    0274  75 0F	90 90			 jne notEnd
-    509	    0278  80 FA	00			 cmp dl,0
-    510	    027B  74 08	90 90			 je notEnd
-    511	    027F  67| C6 07 31			 mov byte ptr[edi], '1'
-    512	    0283  B2 00				 mov dl, 0
-    513	    0285				 notEnd:
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 10
+    503	    0250  66| 3B F9			 cmp edi, ecx
+    504	    0253  74 37	90 90			 je endSumOperation
+    505
+    506	    0257  67| 80 3F 39			 cmp byte ptr[edi], '9'
+    507	    025B  7F 0B	90 90			 jg firstSign
+    508	    025F  67| 80 3E 39			 cmp byte ptr[esi], '9'
+    509	    0263  7F E7				 jg decrementSum
+    510	    0265  EB 20	90			 jmp calc
+    511
+    512	    0268				 firstSign:
+    513	    0268  67| 80 3E 39			 cmp byte ptr[esi], '9'
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 10
 func.ASM
 
 
 
-    514	    0285  EB C5				 jmp decrementSum
-    515
-    516	    0287				 calc:
-    517	    0287  E8 0009			 call sumNumbers
-    518	    028A  EB C0				 jmp decrementSum
-    519						 ;;;;;;;;;;;;;;;;;;;;;
-    520	    028C				 endSumOperation:
-    521
-    522
-    523	    028C  66| 5E			 pop esi
-    524	    028E  66| 5F			 pop edi
-    525	    0290  66| 58			 pop eax
-    526	    0292  C3					 RET
-    527	    0293			 sumOperand	 ENDP
-    528					 ;=================================================
-    529					 ; Процедура сложения двух	цифр
-    530					 ;
-    531					 ; input - edi - цифра
-    532					 ; output bx - флаг	переполнения
-    533					 ;=================================================
-    534	    0293			 sumNumbers	 PROC	 NEAR
-    535	    0293  67| 8A 07			 mov al, byte ptr[edi]
-    536	    0296  67| 8A 1E			 mov bl, byte ptr[esi]
-    537	    0299  3C 39				 cmp al, '9'
-    538	    029B  7F 0C	90 90			 jg aNul
-    539	    029F  80 FB	39			 cmp bl, '9'
-    540	    02A2  7F 0A	90 90			 jg bNul
-    541	    02A6  EB 08	90			 jmp startCulc
-    542	    02A9				 aNul:
-    543	    02A9  B0 30				 mov al, '0'
-    544	    02AB  EB 03	90			 jmp startCulc
-    545	    02AE				 bNul:
-    546	    02AE  B3 30				 mov bl, '0'
-    547	    02B0				 startCulc:
-    548	    02B0  2C 30				 sub al, '0'
-    549	    02B2  80 EB	30			 sub bl, '0'
-    550	    02B5  02 C3				 add al, bl
-    551						 ;;;;;;;;;;;
-    552	    02B7  02 C2				 add al, dl
-    553	    02B9  B2 00				 mov dl, 0
-    554						 ;;;;;;;;;;;;
-    555	    02BB  3C 0A				 cmp al, 10
-    556	    02BD  7C 06	90 90			 jl endCalc
-    557	    02C1  B2 01				 mov dl, 1
-    558	    02C3  2C 0A				 sub al, 10
-    559	    02C5				 endCalc:
-    560	    02C5  04 30				 add al, '0'
-    561	    02C7  67| 88 07			 mov byte ptr[edi], al
-    562
-    563	    02CA  C3					 RET
-    564	    02CB			 sumNumbers	 ENDP
-    565					 ;=================================================
-    566					 ; Процедура вычитания двух операндов
-    567					 ; из	большего меньший
-    568					 ; input - edi и esi -	элементы массива
-    569					 ;=================================================
-    570	    02CB			 subtraction	 PROC	 NEAR
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 11
+    514	    026C  7E 19	90 90			 jle calc
+    515	    0270				 temp:
+    516	    0270  67| 80 3F 7C			 cmp byte ptr[edi], '|'
+    517	    0274  75 0F	90 90			 jne notEnd
+    518	    0278  80 FA	00			 cmp dl,0
+    519	    027B  74 08	90 90			 je notEnd
+    520	    027F  67| C6 07 31			 mov byte ptr[edi], '1'
+    521	    0283  B2 00				 mov dl, 0
+    522	    0285				 notEnd:
+    523	    0285  EB C5				 jmp decrementSum
+    524
+    525	    0287				 calc:
+    526	    0287  E8 0009			 call sumNumbers
+    527	    028A  EB C0				 jmp decrementSum
+    528						 ;;;;;;;;;;;;;;;;;;;;;
+    529	    028C				 endSumOperation:
+    530
+    531
+    532	    028C  66| 5E			 pop esi
+    533	    028E  66| 5F			 pop edi
+    534	    0290  66| 58			 pop eax
+    535	    0292  C3					 RET
+    536	    0293			 sumOperand	 ENDP
+    537					 ;=================================================
+    538					 ; Процедура сложения двух	цифр
+    539					 ;
+    540					 ; input - edi - цифра
+    541					 ; output bx - флаг	переполнения
+    542					 ;=================================================
+    543	    0293			 sumNumbers	 PROC	 NEAR
+    544	    0293  67| 8A 07			 mov al, byte ptr[edi]
+    545	    0296  67| 8A 1E			 mov bl, byte ptr[esi]
+    546	    0299  3C 39				 cmp al, '9'
+    547	    029B  7F 0C	90 90			 jg aNul
+    548	    029F  80 FB	39			 cmp bl, '9'
+    549	    02A2  7F 0A	90 90			 jg bNul
+    550	    02A6  EB 08	90			 jmp startCulc
+    551	    02A9				 aNul:
+    552	    02A9  B0 30				 mov al, '0'
+    553	    02AB  EB 03	90			 jmp startCulc
+    554	    02AE				 bNul:
+    555	    02AE  B3 30				 mov bl, '0'
+    556	    02B0				 startCulc:
+    557	    02B0  2C 30				 sub al, '0'
+    558	    02B2  80 EB	30			 sub bl, '0'
+    559	    02B5  02 C3				 add al, bl
+    560						 ;;;;;;;;;;;
+    561	    02B7  02 C2				 add al, dl
+    562	    02B9  B2 00				 mov dl, 0
+    563						 ;;;;;;;;;;;;
+    564	    02BB  3C 0A				 cmp al, 10
+    565	    02BD  7C 06	90 90			 jl endCalc
+    566	    02C1  B2 01				 mov dl, 1
+    567	    02C3  2C 0A				 sub al, 10
+    568	    02C5				 endCalc:
+    569	    02C5  04 30				 add al, '0'
+    570	    02C7  67| 88 07			 mov byte ptr[edi], al
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 11
 func.ASM
 
 
 
-    571	    02CB  66| 50			 push eax
-    572	    02CD  66| 57			 push edi
-    573	    02CF  66| 56			 push esi
-    574
-    575	    02D1  66| 8B CF			 mov ecx, edi
-    576	    02D4  66| 83 C7 11			 add edi, 17
-    577	    02D8  66| 83 C6 11			 add esi, 17
-    578	    02DC  B2 00				 mov dl, 0
-    579	    02DE  EB 05	90			 jmp startSub
-    580
-    581	    02E1				 decrement:
-    582	    02E1  66| 4F			 dec edi
-    583	    02E3  66| 4E			 dec esi
-    584
-    585	    02E5				 startSub:
-    586	    02E5  67| 8A 07			 mov al, byte ptr[edi]
-    587	    02E8  2A C2				 sub al,dl
-    588	    02EA  67| 88 07			 mov byte ptr[edi], al
-    589	    02ED  B2 00				 mov dl, 0
-    590
-    591	    02EF  66| 3B F9			 cmp edi, ecx
-    592	    02F2  74 2C	90 90			 je endSubOperation
+    571
+    572	    02CA  C3					 RET
+    573	    02CB			 sumNumbers	 ENDP
+    574					 ;=================================================
+    575					 ; Процедура вычитания двух операндов
+    576					 ; из	большего меньший
+    577					 ; input - edi и esi -	элементы массива
+    578					 ;=================================================
+    579	    02CB			 subtraction	 PROC	 NEAR
+    580	    02CB  66| 50			 push eax
+    581	    02CD  66| 57			 push edi
+    582	    02CF  66| 56			 push esi
+    583
+    584	    02D1  66| 8B CF			 mov ecx, edi
+    585	    02D4  66| 83 C7 11			 add edi, 17
+    586	    02D8  66| 83 C6 11			 add esi, 17
+    587	    02DC  B2 00				 mov dl, 0
+    588	    02DE  EB 05	90			 jmp startSub
+    589
+    590	    02E1				 decrement:
+    591	    02E1  66| 4F			 dec edi
+    592	    02E3  66| 4E			 dec esi
     593
-    594	    02F6  67| 80 3F 39			 cmp byte ptr[edi], '9'
-    595	    02FA  7F 0D	90 90			 jg firstIsSign
-    596	    02FE  67| 80 3E 39			 cmp byte ptr[esi], '9'
-    597	    0302  7F DD				 jg decrement
-    598
-    599	    0304  E8 0020			 call subtractNumbers
-    600	    0307  EB D8				 jmp decrement
-    601
-    602	    0309				 firstIsSign:
-    603	    0309  67| 80 3E 39			 cmp byte ptr[esi], '9'
-    604	    030D  7F D2				 jg decrement
-    605	    030F  B0 0A				 mov al, 10
-    606	    0311  67| 8A 1E			 mov bl, byte ptr[esi]
-    607	    0314  80 EB	30			 sub bl, '0'
-    608	    0317  2A C3				 sub al, bl
-    609	    0319  04 30				 add al, '0'
-    610	    031B  67| 88 07			 mov byte ptr[edi], al
-    611
-    612	    031E  EB C1				 jmp decrement
-    613	    0320				 endSubOperation:
-    614	    0320  66| 5E			 pop esi
-    615	    0322  66| 5F			 pop edi
-    616	    0324  66| 58			 pop eax
-    617	    0326  C3					 RET
-    618	    0327			 subtraction	 ENDP
-    619					 ;=================================================
-    620					 ; Процедура вычитания двух цифр
-    621					 ; edx - флаг заема
-    622					 ; output bx - флаг	переполнения
-    623					 ;=================================================
-    624	    0327			 subtractNumbers PROC	 NEAR
-    625	    0327  67| 8A 07			 mov al, byte ptr[edi]
-    626	    032A  2C 30				 sub al, '0'
-    627	    032C  67| 8A 1E			 mov bl, byte ptr[esi]
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 12
+    594	    02E5				 startSub:
+    595	    02E5  67| 8A 07			 mov al, byte ptr[edi]
+    596	    02E8  2A C2				 sub al,dl
+    597	    02EA  67| 88 07			 mov byte ptr[edi], al
+    598	    02ED  B2 00				 mov dl, 0
+    599
+    600	    02EF  66| 3B F9			 cmp edi, ecx
+    601	    02F2  74 2C	90 90			 je endSubOperation
+    602
+    603	    02F6  67| 80 3F 39			 cmp byte ptr[edi], '9'
+    604	    02FA  7F 0D	90 90			 jg firstIsSign
+    605	    02FE  67| 80 3E 39			 cmp byte ptr[esi], '9'
+    606	    0302  7F DD				 jg decrement
+    607
+    608	    0304  E8 0020			 call subtractNumbers
+    609	    0307  EB D8				 jmp decrement
+    610
+    611	    0309				 firstIsSign:
+    612	    0309  67| 80 3E 39			 cmp byte ptr[esi], '9'
+    613	    030D  7F D2				 jg decrement
+    614	    030F  B0 0A				 mov al, 10
+    615	    0311  67| 8A 1E			 mov bl, byte ptr[esi]
+    616	    0314  80 EB	30			 sub bl, '0'
+    617	    0317  2A C3				 sub al, bl
+    618	    0319  04 30				 add al, '0'
+    619	    031B  67| 88 07			 mov byte ptr[edi], al
+    620
+    621	    031E  EB C1				 jmp decrement
+    622	    0320				 endSubOperation:
+    623	    0320  66| 5E			 pop esi
+    624	    0322  66| 5F			 pop edi
+    625	    0324  66| 58			 pop eax
+    626	    0326  C3					 RET
+    627	    0327			 subtraction	 ENDP
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 12
 func.ASM
 
 
 
-    628	    032F  80 EB	30			 sub bl, '0'
-    629
-    630	    0332  2A C3				 sub al, bl
-    631	    0334  3C 00				 cmp al, 0
-    632	    0336  7D 06	90 90			 jge hf
-    633
-    634	    033A  04 0A				 add al, 10
-    635	    033C  B2 01				 mov dl, 1
-    636	    033E				 hf:
-    637	    033E  04 30				 add al, '0'
-    638	    0340  67| 88 07			 mov byte ptr[edi], al
-    639	    0343  C3					 RET
-    640	    0344			 subtractNumbers ENDP
-    641					 ;=================================================
-    642					 ; Процедура приведения элемента структуры к	    +
-    643					 нормальному	виду
-    644					 ;
-    645					 ; input - edi - адрес элемента
-    646					 ;=================================================
-    647	    0344			 normalize	 PROC	 NEAR
-    648	    0344  66| 51			 push ecx
-    649	    0346  66| 57			 push edi
-    650	    0348  66| 50			 push eax
-    651	    034A  66| 52			 push edx
-    652	    034C  66| 53			 push ebx
-    653
-    654	    034E  66| 8B C7			 mov eax, edi;запоминаем edi
-    655
-    656	    0351  66| 83 C7 01			 add edi, 1
-    657
-    658	    0355  66| 33 C9			 xor ecx, ecx
-    659	    0358				 ui:
-    660	    0358  66| 83 F9 0A			 cmp ecx, 10
-    661	    035C  74 32	90 90			 je endNormalize
-    662	    0360  67| 80 3F 7C			 cmp byte ptr[edi], '|'
-    663	    0364  74 08	90 90			 je endui
-    664	    0368  66| 41			 inc ecx
-    665	    036A  66| 47			 inc edi
-    666	    036C  EB EA				 jmp ui
-    667
-    668	    036E				 endui:
-    669
-    670	    036E  66| BB 0000000A		 mov ebx, 10
-    671	    0374  66| 2B D9			 sub ebx, ecx
-    672	    0377  66| 4F			 dec edi
-    673
-    674	    0379				 endIteration:
-    675	    0379  66| 3B F8			 cmp edi, eax
-    676	    037C  74 12	90 90			 je endNormalize
-    677
-    678	    0380  67| 8A 17			 mov dl, byte ptr[edi]
-    679	    0383  67| 88 14 1F			 mov byte ptr[edi + ebx],  dl
-    680	    0387  B2 7C				 mov dl, '|'
-    681	    0389  67| 88 17			 mov byte ptr[edi], dl
+    628					 ;=================================================
+    629					 ; Процедура вычитания двух цифр
+    630					 ; edx - флаг заема
+    631					 ; output bx - флаг	переполнения
+    632					 ;=================================================
+    633	    0327			 subtractNumbers PROC	 NEAR
+    634	    0327  67| 8A 07			 mov al, byte ptr[edi]
+    635	    032A  2C 30				 sub al, '0'
+    636	    032C  67| 8A 1E			 mov bl, byte ptr[esi]
+    637	    032F  80 EB	30			 sub bl, '0'
+    638
+    639	    0332  2A C3				 sub al, bl
+    640	    0334  3C 00				 cmp al, 0
+    641	    0336  7D 06	90 90			 jge hf
+    642
+    643	    033A  04 0A				 add al, 10
+    644	    033C  B2 01				 mov dl, 1
+    645	    033E				 hf:
+    646	    033E  04 30				 add al, '0'
+    647	    0340  67| 88 07			 mov byte ptr[edi], al
+    648	    0343  C3					 RET
+    649	    0344			 subtractNumbers ENDP
+    650					 ;=================================================
+    651					 ; Процедура приведения элемента структуры к	    +
+    652					 нормальному	виду
+    653					 ;
+    654					 ; input - edi - адрес элемента
+    655					 ;=================================================
+    656	    0344			 normalize	 PROC	 NEAR
+    657	    0344  66| 51			 push ecx
+    658	    0346  66| 57			 push edi
+    659	    0348  66| 50			 push eax
+    660	    034A  66| 52			 push edx
+    661	    034C  66| 53			 push ebx
+    662
+    663	    034E  66| 8B C7			 mov eax, edi;запоминаем edi
+    664
+    665	    0351  66| 83 C7 01			 add edi, 1
+    666
+    667	    0355  66| 33 C9			 xor ecx, ecx
+    668	    0358				 ui:
+    669	    0358  66| 83 F9 0A			 cmp ecx, 10
+    670	    035C  74 32	90 90			 je endNormalize
+    671	    0360  67| 80 3F 7C			 cmp byte ptr[edi], '|'
+    672	    0364  74 08	90 90			 je endui
+    673	    0368  66| 41			 inc ecx
+    674	    036A  66| 47			 inc edi
+    675	    036C  EB EA				 jmp ui
+    676
+    677	    036E				 endui:
+    678
+    679	    036E  66| BB 0000000A		 mov ebx, 10
+    680	    0374  66| 2B D9			 sub ebx, ecx
+    681	    0377  66| 4F			 dec edi
     682
-    683	    038C  66| 4F			 dec edi
-    684	    038E  EB E9				 jmp endIteration
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 13
+    683	    0379				 endIteration:
+    684	    0379  66| 3B F8			 cmp edi, eax
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 13
 func.ASM
 
 
 
-    685	    0390				 endNormalize:
-    686	    0390  66| 5B			 pop ebx
-    687	    0392  66| 5A			 pop edx
-    688	    0394  66| 58			 pop eax
-    689	    0396  66| 5F			 pop edi
-    690	    0398  66| 59			 pop ecx
-    691	    039A  C3					 RET
-    692	    039B			 normalize	 ENDP
-    693
-    694					 ;=================================================
-    695					 ; Процедура вывода элемента структуры
-    696					 ; input - edi - адрес элемента
-    697					 ;=================================================
-    698	    039B			 outStruct	 PROC	 NEAR
-    699	    039B  66| 57			 push edi
-    700	    039D  66| 51			 push ecx
-    701	    039F  66| 50			 push eax
-    702	    03A1  66| 52			 push edx
-    703
-    704	    03A3  66| 33 C9			 xor ecx, ecx
-    705	    03A6				 rty:
-    706	    03A6  66| 83 F9 12			 cmp ecx, 18
-    707	    03AA  74 0F	90 90			 je zxc
-    708	    03AE  67| 8A 17			 mov dl, byte ptr[edi]
-    709	    03B1  B4 02				 mov ah,2
-    710	    03B3  CD 21				 int 21h
-    711
-    712	    03B5  66| 47			 inc edi
-    713	    03B7  66| 41			 inc ecx
-    714	    03B9  EB EB				 jmp rty
-    715	    03BB				 zxc:
-    716
-    717	    03BB  66| 5A			 pop edx
-    718	    03BD  66| 58			 pop eax
-    719	    03BF  66| 59			 pop ecx
-    720	    03C1  66| 5F			 pop edi
-    721
-    722	    03C3  C3					 RET
-    723	    03C4			 outStruct	 ENDP
-    724					 ;=================================================
-    725
-    726					 ;=================================================
-    727	    03C4			 changeOperand	 PROC	 NEAR
-    728	    03C4  66| 57			 push edi
-    729	    03C6  66| 56			 push esi
-    730	    03C8  66| 83 C7 01			 add edi, 1
-    731	    03CC  66| 83 C6 01			 add esi, 1
-    732	    03D0				 iterationCycle:
-    733	    03D0  67| 80 3F 39			 cmp byte ptr[edi], '9'
-    734	    03D4  7E 10	90 90			 jle secondCheck
-    735
-    736	    03D8  67| 80 3E 39			 cmp byte ptr[esi], '9'
-    737	    03DC  7E 2A	90 90			 jle secondHappening
-    738	    03E0  66| 47			 inc edi
-    739	    03E2  66| 46			 inc esi
-    740	    03E4  EB EA				 jmp iterationCycle
-    741
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 14
+    685	    037C  74 12	90 90			 je endNormalize
+    686
+    687	    0380  67| 8A 17			 mov dl, byte ptr[edi]
+    688	    0383  67| 88 14 1F			 mov byte ptr[edi + ebx],  dl
+    689	    0387  B2 7C				 mov dl, '|'
+    690	    0389  67| 88 17			 mov byte ptr[edi], dl
+    691
+    692	    038C  66| 4F			 dec edi
+    693	    038E  EB E9				 jmp endIteration
+    694	    0390				 endNormalize:
+    695	    0390  66| 5B			 pop ebx
+    696	    0392  66| 5A			 pop edx
+    697	    0394  66| 58			 pop eax
+    698	    0396  66| 5F			 pop edi
+    699	    0398  66| 59			 pop ecx
+    700	    039A  C3					 RET
+    701	    039B			 normalize	 ENDP
+    702
+    703					 ;=================================================
+    704					 ; Процедура вывода элемента структуры
+    705					 ; input - edi - адрес элемента
+    706					 ;=================================================
+    707	    039B			 outStruct	 PROC	 NEAR
+    708	    039B  66| 57			 push edi
+    709	    039D  66| 51			 push ecx
+    710	    039F  66| 50			 push eax
+    711	    03A1  66| 52			 push edx
+    712
+    713	    03A3  67| 8A 17			 mov dl, byte ptr[edi]
+    714	    03A6  B4 02				 mov ah,2
+    715	    03A8  CD 21				 int 21h
+    716	    03AA  66| 83 C7 01			 add edi, 1
+    717
+    718	    03AE  66| 33 C9			 xor ecx, ecx
+    719	    03B1				 rty:
+    720	    03B1  66| 83 F9 0A			 cmp ecx, 10
+    721	    03B5  74 17	90 90			 je zxc
+    722	    03B9  67| 80 3F 7C			 cmp byte ptr[edi], '|'
+    723	    03BD  74 09	90 90			 je jjj
+    724	    03C1  67| 8A 17				 mov dl, byte ptr[edi]
+    725	    03C4  B4 02					 mov ah,2
+    726	    03C6  CD 21					 int 21h
+    727
+    728	    03C8				 jjj:
+    729	    03C8  66| 47			 inc edi
+    730	    03CA  66| 41			 inc ecx
+    731	    03CC  EB E3				 jmp rty
+    732	    03CE				 zxc:
+    733	    03CE  B2 2E				 mov dl, '.'
+    734	    03D0  B4 02				 mov ah,2
+    735	    03D2  CD 21				 int 21h
+    736	    03D4  66| 83 C7 01			 add edi, 1
+    737
+    738	    03D8  66| 4F			 dec edi
+    739	    03DA  66| 83 C1 01			 add ecx, 1
+    740	    03DE				 rty1:
+    741	    03DE  66| 83 F9 12			 cmp ecx, 18
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 14
 func.ASM
 
 
 
-    742
-    743	    03E6				 secondCheck:
-    744	    03E6  67| 80 3E 39			 cmp byte ptr[esi], '9'
-    745	    03EA  7E 05	90 90			 jle equalSize
-    746	    03EE  EB 0B	90			 jmp firstHappening
-    747	    03F1				 equalSize:
-    748	    03F1  67| 8A 07			 mov al, byte ptr[edi]
-    749	    03F4  67| 3A 06			 cmp al, byte ptr[esi]
-    750	    03F7  7C 0F	90 90			 jl secondHappening
-    751
-    752	    03FB					 firstHappening:
-    753	    03FB  66| 5E				 pop esi
-    754	    03FD  66| 5F				 pop edi
-    755	    03FF  66| B8 00000000			 mov eax, 0
-    756	    0405  EB 0B	90				 jmp emd
-    757
-    758	    0408					 secondHappening:
-    759	    0408  66| 5F				 pop edi
-    760	    040A  66| 5E				 pop esi
-    761	    040C  66| B8 00000001			 mov eax, 1
-    762	    0412					 emd:
-    763	    0412  C3					 RET
-    764	    0413			 changeOperand	 ENDP
-    765					 PUBLIC	 PUTSS
-    766					 PUBLIC	 PUTC
-    767					 PUBLIC	 BINtoDEC
-    768					 PUBLIC	 OutMassive
-    769					 PUBLIC	 GETCH
-    770					 PUBLIC	 bufferToStruct
-    771					 PUBLIC	 clearMassive
-    772					 PUBLIC	 checkOnDot
-    773					 PUBLIC	 checkOnSize
-    774					 PUBLIC	 checkOnNumber
-    775					 PUBLIC	 ATOI
-    776					 PUBLIC	 MulFive
-    777					 PUBLIC	 sumOperand
-    778					 PUBLIC	 outStruct
-    779					 PUBLIC	 normalize
-    780					 PUBLIC	 subtraction
-    781					 PUBLIC	 changeOperand
-    782					 END
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 15
+    742	    03E2  74 17	90 90			 je zxc1
+    743	    03E6  67| 80 3F 3F			 cmp byte ptr[edi], '?'
+    744	    03EA  74 09	90 90			 je jjj1
+    745	    03EE  67| 8A 17				 mov dl, byte ptr[edi]
+    746	    03F1  B4 02					 mov ah,2
+    747	    03F3  CD 21					 int 21h
+    748
+    749	    03F5				 jjj1:
+    750	    03F5  66| 47			 inc edi
+    751	    03F7  66| 41			 inc ecx
+    752	    03F9  EB E3				 jmp rty1
+    753	    03FB				 zxc1:
+    754
+    755	    03FB  66| 5A			 pop edx
+    756	    03FD  66| 58			 pop eax
+    757	    03FF  66| 59			 pop ecx
+    758	    0401  66| 5F			 pop edi
+    759
+    760	    0403  C3					 RET
+    761	    0404			 outStruct	 ENDP
+    762					 ;=================================================
+    763					 ; перенос большего по	модулю числа	в левый операнд
+    764					 ;=================================================
+    765	    0404			 changeOperand	 PROC	 NEAR
+    766	    0404  66| 57			 push edi
+    767	    0406  66| 56			 push esi
+    768	    0408  66| 83 C7 01			 add edi, 1
+    769	    040C  66| 83 C6 01			 add esi, 1
+    770	    0410				 iterationCycle:
+    771	    0410  67| 80 3F 39			 cmp byte ptr[edi], '9'
+    772	    0414  7E 10	90 90			 jle secondCheck
+    773
+    774	    0418  67| 80 3E 39			 cmp byte ptr[esi], '9'
+    775	    041C  7E 2A	90 90			 jle secondHappening
+    776	    0420  66| 47			 inc edi
+    777	    0422  66| 46			 inc esi
+    778	    0424  EB EA				 jmp iterationCycle
+    779
+    780
+    781	    0426				 secondCheck:
+    782	    0426  67| 80 3E 39			 cmp byte ptr[esi], '9'
+    783	    042A  7E 05	90 90			 jle equalSize
+    784	    042E  EB 0B	90			 jmp firstHappening
+    785	    0431				 equalSize:
+    786	    0431  67| 8A 07			 mov al, byte ptr[edi]
+    787	    0434  67| 3A 06			 cmp al, byte ptr[esi]
+    788	    0437  7C 0F	90 90			 jl secondHappening
+    789
+    790	    043B					 firstHappening:
+    791	    043B  66| 5E				 pop esi
+    792	    043D  66| 5F				 pop edi
+    793	    043F  66| B8 00000000			 mov eax, 0
+    794	    0445  EB 0B	90				 jmp emd
+    795
+    796	    0448					 secondHappening:
+    797	    0448  66| 5F				 pop edi
+    798	    044A  66| 5E				 pop esi
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 15
+func.ASM
+
+
+
+    799	    044C  66| B8 00000001			 mov eax, 1
+    800	    0452					 emd:
+    801	    0452  C3					 RET
+    802	    0453			 changeOperand	 ENDP
+    803					 ;=================================================
+    804					 ; перенос влево минимального операнда
+    805					 ;=================================================
+    806	    0453			 minimumOperand	 PROC	 NEAR
+    807	    0453  66| 57			 push edi
+    808	    0455  66| 56			 push esi
+    809
+    810	    0457  67| 80 3F 2D			 cmp byte ptr[edi], '-'
+    811	    045B  74 05	90 90			 je firstMin
+    812	    045F  EB 07	90			 jmp secondMin
+    813
+    814	    0462					 firstMin:
+    815	    0462  66| 5E				 pop esi
+    816	    0464  66| 5F				 pop edi
+    817	    0466  EB EA					 jmp emd
+    818
+    819	    0468					 secondMin:
+    820	    0468  66| 5F				 pop edi
+    821	    046A  66| 5E				 pop esi
+    822	    046C					 ehd:
+    823	    046C  C3					 RET
+    824	    046D			 minimumOperand	 ENDP
+    825
+    826					 PUBLIC	 PUTSS
+    827					 PUBLIC	 PUTC
+    828					 PUBLIC	 BINtoDEC
+    829					 PUBLIC	 OutMassive
+    830					 PUBLIC	 GETCH
+    831					 PUBLIC	 bufferToStruct
+    832					 PUBLIC	 clearMassive
+    833					 PUBLIC	 checkOnDot
+    834					 PUBLIC	 checkOnSize
+    835					 PUBLIC	 checkOnNumber
+    836					 PUBLIC	 ATOI
+    837					 PUBLIC	 MulFive
+    838					 PUBLIC	 sumOperand
+    839					 PUBLIC	 outStruct
+    840					 PUBLIC	 normalize
+    841					 PUBLIC	 subtraction
+    842					 PUBLIC	 changeOperand
+    843					 PUBLIC	 minimumOperand
+    844					 END
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 16
 Symbol Table
 
 
@@ -858,9 +925,9 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??DATE				  Text	 "05/10/21"
+??DATE				  Text	 "05/11/21"
 ??FILENAME			  Text	 "func	  "
-??TIME				  Text	 "21:58:19"
+??TIME				  Text	 "13:09:04"
 ??VERSION			  Number 0205
 @@CONVERT			  Near	 _TEXT:018D
 @@E				  Near	 _TEXT:0019
@@ -884,7 +951,7 @@ BNUL				  Near	 _TEXT:02AE
 BUFFERTOSTRUCT			  Near	 _TEXT:0103
 CALC				  Near	 _TEXT:0287
 CALCFIVE			  Near	 _TEXT:0219
-CHANGEOPERAND			  Near	 _TEXT:03C4
+CHANGEOPERAND			  Near	 _TEXT:0404
 CHECKINTEGER			  Near	 _TEXT:0089
 CHECKNUMBER			  Near	 _TEXT:00D6
 CHECKONDOT			  Near	 _TEXT:0050
@@ -896,7 +963,8 @@ CLEARMASSIVE			  Near	 _TEXT:0161
 DECR				  Near	 _TEXT:0032
 DECREMENT			  Near	 _TEXT:02E1
 DECREMENTSUM			  Near	 _TEXT:024C
-EMD				  Near	 _TEXT:0412
+EHD				  Near	 _TEXT:046C
+EMD				  Near	 _TEXT:0452
 ENDCALC				  Near	 _TEXT:02C5
 ENDCHECK			  Near	 _TEXT:0073
 ENDCHECKNUMBER			  Near	 _TEXT:0100
@@ -911,26 +979,30 @@ ENDOF				  Near	 _TEXT:0186
 ENDSUBOPERATION			  Near	 _TEXT:0320
 ENDSUMOPERATION			  Near	 _TEXT:028C
 ENDUI				  Near	 _TEXT:036E
-EQUALSIZE			  Near	 _TEXT:03F1
-Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 16
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 17
 Symbol Table
 
 
 
+EQUALSIZE			  Near	 _TEXT:0431
 ERRORNUMBER			  Near	 _TEXT:00FA
 ERRORSIZE			  Near	 _TEXT:00BA
 EXITCLEAR			  Near	 _TEXT:0173
-FIRSTHAPPENING			  Near	 _TEXT:03FB
+FIRSTHAPPENING			  Near	 _TEXT:043B
 FIRSTISSIGN			  Near	 _TEXT:0309
+FIRSTMIN			  Near	 _TEXT:0462
 FIRSTSIGN			  Near	 _TEXT:0268
 GETCH				  Near	 _TEXT:0000
 HF				  Near	 _TEXT:033E
 INCREMENTESI			  Near	 _TEXT:00F6
 INTEGER				  Near	 _TEXT:0125
 INTEGER1			  Near	 _TEXT:0127
-ITERATIONCYCLE			  Near	 _TEXT:03D0
+ITERATIONCYCLE			  Near	 _TEXT:0410
+JJJ				  Near	 _TEXT:03C8
+JJJ1				  Near	 _TEXT:03F5
 M01				  Near	 _TEXT:0174
 MIDDLECHECK1			  Near	 _TEXT:006F
+MINIMUMOPERAND			  Near	 _TEXT:0453
 MULFIVE				  Near	 _TEXT:01B6
 NORMALIZE			  Near	 _TEXT:0344
 NOTEND				  Near	 _TEXT:0285
@@ -941,9 +1013,11 @@ PUTC				  Near	 _TEXT:0024
 PUTSS				  Near	 _TEXT:0005
 REAL				  Near	 _TEXT:013B
 REAL1				  Near	 _TEXT:0144
-RTY				  Near	 _TEXT:03A6
-SECONDCHECK			  Near	 _TEXT:03E6
-SECONDHAPPENING			  Near	 _TEXT:0408
+RTY				  Near	 _TEXT:03B1
+RTY1				  Near	 _TEXT:03DE
+SECONDCHECK			  Near	 _TEXT:0426
+SECONDHAPPENING			  Near	 _TEXT:0448
+SECONDMIN			  Near	 _TEXT:0468
 SIGN				  Near	 _TEXT:0115
 STARTCHECK			  Near	 _TEXT:0059
 STARTCLEAR			  Near	 _TEXT:0161
@@ -959,12 +1033,19 @@ TEMP				  Near	 _TEXT:0270
 UI				  Near	 _TEXT:0358
 WQER				  Near	 _TEXT:01F9
 YUI				  Near	 _TEXT:01E9
-ZXC				  Near	 _TEXT:03BB
+ZXC				  Near	 _TEXT:03CE
+ZXC1				  Near	 _TEXT:03FB
 
 Macro Name
 
 CHECKSTR
 CLEARMAS
+GETELEMENT
+Turbo Assembler	 Version 2.51	     05/11/21 13:09:04	    Page 18
+Symbol Table
+
+
+
 INPUTMAS
 PUTL
 PUTLS
@@ -973,5 +1054,5 @@ Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   _DATA				  16  0000 Word	  Public  DATA
-_TEXT				  16  0413 Word	  Public  CODE
+_TEXT				  16  046D Word	  Public  CODE
 

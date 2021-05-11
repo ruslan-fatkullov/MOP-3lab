@@ -16,6 +16,8 @@ INCLUDE macros.mac
 	requestForInputIndex DB "Enter i, j, k", 0
 	errString DB "data entry error", 0
 	questions	db	"want to enter another number? [y|n]", 0
+	minElem	db	"minimum element", 0
+	res	db	"result", 0
 	testStr db 20 
 		db 21 dup(?)
 	
@@ -80,7 +82,6 @@ IndexCycle:
 	INPUTMAS testStr
 	call ATOI; меняет AX
 	PUTL empty
-	call BINtoDEC
 	
 	mov byte ptr[edi], al
 	add edi, 1
@@ -92,82 +93,85 @@ endIndexCycle:
 ;==============================================	
 
 
-;==============умножение================================
+;==============приведение================================
 	PUTL empty
+	;lea edi, index
+	;getElement 
+	;lea edi, array
+	;add edi, eax
+	;call normalize
+	;;;
+	xor ecx, ecx
 	lea edi, array
-	lea esi, array
+	startPriv:
+	cmp ecx, 20
+	je endPriv
 	
-	add edi, 36
-	call MulFive
-	lea edi, array
 	call normalize
 	add edi, 18
-	call normalize
-	add edi, 18
-	call normalize
-;==============умножение================================	
-;==============замена местами при необходимости 2 и 3 операндов================================
+	inc ecx
+	jmp startPriv
+	
+	endPriv:
+;==============приведение================================	
+
+;==============поиск минимального====================================
+;минимальный в edi
+	;;;lea edi, array+18
+	;lea edi, index+1
+	;getElement 
+	;lea edi, array
+	;add edi, eax
+	;;;
+	
+	
 	lea edi, array+18
 	lea esi, array+36
 	call changeOperand
-;==============замена местами при необходимости 2 и 3 операндов================================
+	call minimumOperand
+	PUTL minElem
+	call outStruct
+	PUTL empty
+;==============поиск минимального====================================
 
 
 
-;=====================вычитание==================================	
+;==============замена местами при необходимости 1 и 2 операндов================================
+	
+	mov esi, edi
+	lea edi, array
+	call changeOperand
+;==============замена местами при необходимости 1 и 1 операндов================================
 
-	;первое отрицательное
-	minusFirst:
+
+
+;=====================сложение==================================	
 	cmp byte ptr[edi], '+'
-	je plusFirst
+	je secondSIgn
 	cmp byte ptr[esi], '+'
-	je plusSecond
-	
-	;второе отрицательное
-	call subtraction
-	cmp eax, 1
-	jne endOfSUB
-	mov byte ptr[edi], '+'
-	
-	jmp endOfSUB
-	
-	
-	plusSecond:
-	;второе положительно
+	je SecondPlus
 	call sumOperand
-	cmp eax, 1
-	jne endOfSUB
-	mov byte ptr[edi], '+'
-	jmp endOfSUB
-	
-	
-	;первое положительное
-	plusFirst:
+	jmp endSUM
+	SecondPlus:
+	call subtraction
+	jmp endSUM
+	secondSIgn:
 	cmp byte ptr[esi], '+'
-	je fbdg
-	call sumOperand
-	cmp eax, 1
-	jne endOfSUB
-	mov byte ptr[edi], '-'
-	jmp endOfSUB
-	
-	;второе положительно
-	fbdg:
+	je sum
 	call subtraction
-	cmp eax, 1
-	jne endOfSUB
-	mov byte ptr[edi], '-'
-
-	endOfSUB:
-;=====================вычитание==================================	
+	jmp endSUM
+	sum:
+	call sumOperand
+	endSUM:
+;=====================сложение==================================	
 
 	lea edi, array
 	cmp eax, 1
 	je jkl
-		lea esi, array + 18
+		lea esi, array
 		jmp rtyy
 	jkl:
-		lea esi, array + 36
+		lea esi, array + 18
 	rtyy:
 
 
@@ -181,31 +185,12 @@ endIndexCycle:
 ;	call outStruct
 ;	PUTL empty
 ;	add edi, 18
+	PUTL res
 	mov edi, esi
 	call outStruct
 ;==========================
 	
 	
-;==============================================
-;цикл ввода индексов 
-;записывает индексы в стек	
-;	PUTL requestForInputIndex
-;	xor ecx, ecx
-;	lea esi, testStr
-;IndexCycle:
-;	cmp ecx, 3
-;	je endIndexCycle
-;	
-;	INPUTMAS testStr
-;	call ATOI; меняет AX
-;	PUTL empty
-;	call BINtoDEC
-;	push ax
-;	ClearMas testStr
-;	inc ecx
-;	jmp IndexCycle
-;endIndexCycle:
-;==============================================
 
 
 	MOV     AH, 4ch
@@ -228,6 +213,6 @@ endIndexCycle:
 	EXTRN	normalize:NEAR
 	EXTRN	subtraction:NEAR
 	EXTRN	changeOperand:NEAR
-	
+	EXTRN	minimumOperand:NEAR	
 	
 END START

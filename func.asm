@@ -623,18 +623,47 @@ outStruct	PROC	NEAR
 	push eax
 	push edx 
 	
-	xor ecx, ecx
-	rty:
-	cmp ecx, 18
-	je zxc
 	mov dl, byte ptr[edi]
 	mov ah,2
 	int 21h
+	add edi, 1
 	
+	xor ecx, ecx
+	rty:
+	cmp ecx, 10
+	je zxc
+	cmp byte ptr[edi], '|'
+	je jjj
+		mov dl, byte ptr[edi]
+		mov ah,2
+		int 21h
+	
+	jjj:
 	inc edi
 	inc ecx
 	jmp rty
 	zxc:
+	mov dl, '.'
+	mov ah,2
+	int 21h
+	add edi, 1
+	
+	dec edi
+	add ecx, 1
+	rty1:
+	cmp ecx, 18
+	je zxc1
+	cmp byte ptr[edi], '?'
+	je jjj1
+		mov dl, byte ptr[edi]
+		mov ah,2
+		int 21h
+	
+	jjj1:
+	inc edi
+	inc ecx
+	jmp rty1
+	zxc1:
 	
 	pop edx
 	pop eax
@@ -644,7 +673,7 @@ outStruct	PROC	NEAR
 		RET
 outStruct	ENDP
 ;=================================================
-
+; перенос большего по модулю числа в левый операнд
 ;=================================================
 changeOperand	PROC	NEAR
 	push edi
@@ -684,6 +713,29 @@ changeOperand	PROC	NEAR
 		emd:
 		RET
 changeOperand	ENDP
+;=================================================
+; перенос влево минимального операнда
+;=================================================
+minimumOperand	PROC	NEAR
+	push edi
+	push esi
+
+	cmp byte ptr[edi], '-'
+	je firstMin
+	jmp secondMin
+	
+		firstMin:
+		pop esi
+		pop edi
+		jmp emd
+		
+		secondMin:
+		pop edi
+		pop esi
+		ehd:
+		RET
+minimumOperand	ENDP
+
 PUBLIC	PUTSS
 PUBLIC	PUTC 
 PUBLIC	BINtoDEC 
@@ -701,4 +753,5 @@ PUBLIC	outStruct
 PUBLIC	normalize
 PUBLIC	subtraction
 PUBLIC	changeOperand
+PUBLIC	minimumOperand
 END
