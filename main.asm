@@ -20,14 +20,20 @@ INCLUDE macros.mac
 		db 21 dup(?)
 	
 	array	Float	20	dup(<>)	
+	
+	
+	index DB 0,0,0
 .CODE
 START:
 	mov ax,@data
     mov ds,ax
 
-	mov ecx, 0
+	mov cx, 0
 	
+	INPUTMAS testStr
 	lea esi, testStr
+	call ATOI
+	
 	lea edi, array
 	
 	
@@ -35,7 +41,7 @@ START:
 ;==============================================
 ;цикл ввода чисел
 InputCycle:
-	cmp ecx, 2
+	cmp cx, ax
 	je endInputCycle
 	
 	;==============================================
@@ -50,28 +56,135 @@ InputCycle:
 	add edi, 18
 	ClearMas testStr
 	;==============================================
-	
-	inc ecx
+	PUTL empty
+	inc cx
 	jmp InputCycle
 inputError:
 	PUTL errString
 endInputCycle:	
 ;==============================================
+
+
+;==============================================
+;цикл ввода индексов 
+;записывает индексы в стек	
+	lea di, index
+
+	PUTL requestForInputIndex
+	xor ecx, ecx
+	lea esi, testStr
+IndexCycle:
+	cmp ecx, 3
+	je endIndexCycle
 	
+	INPUTMAS testStr
+	call ATOI; меняет AX
+	PUTL empty
+	call BINtoDEC
+	
+	mov byte ptr[edi], al
+	add edi, 1
+	
+	ClearMas testStr
+	inc ecx
+	jmp IndexCycle
+endIndexCycle:
+;==============================================	
+
+
+;==============умножение================================
 	PUTL empty
 	lea edi, array
 	lea esi, array
-	add esi, 18
 	
-	call normalize
-	mov edi, esi
-	call normalize
-	
+	add edi, 36
+	call MulFive
 	lea edi, array
+	call normalize
+	add edi, 18
+	call normalize
+	add edi, 18
+	call normalize
+;==============умножение================================	
+;==============замена местами при необходимости 2 и 3 операндов================================
+	lea edi, array+18
+	lea esi, array+36
+	call changeOperand
+;==============замена местами при необходимости 2 и 3 операндов================================
+
+
+
+;=====================вычитание==================================	
+
+	;первое отрицательное
+	minusFirst:
+	cmp byte ptr[edi], '+'
+	je plusFirst
+	cmp byte ptr[esi], '+'
+	je plusSecond
+	
+	;второе отрицательное
 	call subtraction
+	cmp eax, 1
+	jne endOfSUB
+	mov byte ptr[edi], '+'
 	
+	jmp endOfSUB
+	
+	
+	plusSecond:
+	;второе положительно
+	call sumOperand
+	cmp eax, 1
+	jne endOfSUB
+	mov byte ptr[edi], '+'
+	jmp endOfSUB
+	
+	
+	;первое положительное
+	plusFirst:
+	cmp byte ptr[esi], '+'
+	je fbdg
+	call sumOperand
+	cmp eax, 1
+	jne endOfSUB
+	mov byte ptr[edi], '-'
+	jmp endOfSUB
+	
+	;второе положительно
+	fbdg:
+	call subtraction
+	cmp eax, 1
+	jne endOfSUB
+	mov byte ptr[edi], '-'
+
+	endOfSUB:
+;=====================вычитание==================================	
+
 	lea edi, array
+	cmp eax, 1
+	je jkl
+		lea esi, array + 18
+		jmp rtyy
+	jkl:
+		lea esi, array + 36
+	rtyy:
+
+
+
+
+;==========================
+;	lea edi, array
+;	call outStruct
+;	PUTL empty
+;	add edi, 18
+;	call outStruct
+;	PUTL empty
+;	add edi, 18
+	mov edi, esi
 	call outStruct
+;==========================
+	
 	
 ;==============================================
 ;цикл ввода индексов 
@@ -114,6 +227,7 @@ endInputCycle:
 	EXTRN	outStruct:NEAR
 	EXTRN	normalize:NEAR
 	EXTRN	subtraction:NEAR
+	EXTRN	changeOperand:NEAR
 	
 	
 END START

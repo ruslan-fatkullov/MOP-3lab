@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 1
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 1
 main.ASM
 
 
@@ -60,7 +60,7 @@ main.ASM
 1    55						 pop dx
 1    56							 ENDM
 1    57
-Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 2
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 2
 main.ASM
 
 
@@ -116,189 +116,405 @@ main.ASM
     106
     107	    0076  14*(01*(2B) 0A*(7C) +		 array	 Float	 20	 dup(<>)
     108		  07*(3F))
-    109	    01DE			 .CODE
-    110	    0000			 START:
-    111	    0000  B8 0000s			 mov ax,@data
-    112	    0003  8E D8			     mov ds,ax
-    113
-    114	    0005  66| B9 00000000		 mov ecx, 0
-Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 3
+    109
+    110
+    111	    01DE  00 00	00			 index DB 0,0,0
+    112	    01E1			 .CODE
+    113	    0000			 START:
+    114	    0000  B8 0000s			 mov ax,@data
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 3
 main.ASM
 
 
 
-    115
-    116	    000B  66| 8D 36 0060r		 lea esi, testStr
-    117	    0010  66| 8D 3E 0076r		 lea edi, array
+    115	    0003  8E D8			     mov ds,ax
+    116
+    117	    0005  B9 0000			 mov cx, 0
     118
-    119
-    120						 PUTL requestForInputNumbers
-1   121	    0015  66| 51			 push ecx
-1   122	    0017  66| 50			 push eax
-1   123	    0019  66| 52			 push edx
-1   124	    001B  56				 push si
-1   125	    001C  BE 0002r			 LEA   SI,   requestForInputNumbers
-1   126	    001F  33 C9				 XOR   CX,   CX
-1   127	    0021  33 D2				 XOR   DX,   DX
-1   128	    0023  33 C0				 XOR   AX,   AX
-1   129	    0025  E8 0000e			 CALL  PUTSS
-1   130	    0028  5E				 pop	 si
-1   131	    0029  66| 5A			 pop edx
-1   132	    002B  66| 58			 pop eax
-1   133	    002D  66| 59			 pop ecx
-    134					 ;==============================================
-    135					 ;цикл ввода чисел
-    136	    002F			 InputCycle:
-    137	    002F  66| 83 F9 02			 cmp ecx, 2
-    138	    0033  0F 84	007E			 je endInputCycle
-    139
-    140						 ;==============================================
-    141						 ;ввод числа в буфер
-    142						 ;проверка на	корректность
-    143						 ;запись из буфера в массив структур
-    144						 INPUTMAS testStr
-1   145	    0037  52				 push dx
-1   146	    0038  50				 push ax
-1   147	    0039  66| 56			 push esi
-1   148	    003B  33 D2				 xor dx, dx
-1   149	    003D  B4 0A				 mov ah,0Ah
-1   150	    003F  BA 0060r		     lea dx,testStr
-1   151	    0042  CD 21			     int 21h
-1   152	    0044  66| 8D 36 0060r		 lea esi, testStr
-1   153	    0049				 ??0001:
-1   154	    0049  67| 80 7E 02 00		 cmp byte ptr[esi+2], 0
-1   155	    004E  74 06	90 90			 je ??0000
-1   156	    0052  66| 46			 inc esi
-1   157	    0054  EB F3				 jmp ??0001
-1   158	    0056				 ??0000:
-1   159	    0056  67| C6 46 01 00		 mov byte ptr[esi+1], 0
-1   160	    005B  66| 5E			 pop esi
-1   161	    005D  58				 pop ax
-1   162	    005E  5A				 pop dx
-    163	    005F  66| 50			 push eax
-    164						 CheckStr testStr ;меняется eax
-1   165	    0061  E8 0000e			 call checkOnDot
-1   166	    0064  66| 83 F8 01			 cmp eax, 1
-1   167	    0068  75 31	90 90			 jne inputError
-1   168	    006C  E8 0000e			 call checkOnSize
-1   169	    006F  66| 83 F8 FF			 cmp eax, -1
-1   170	    0073  74 26	90 90			 je inputError
-1   171	    0077  E8 0000e			 call checkOnNumber
-Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 4
+    119						 INPUTMAS testStr
+1   120	    0008  52				 push dx
+1   121	    0009  50				 push ax
+1   122	    000A  66| 56			 push esi
+1   123	    000C  33 D2				 xor dx, dx
+1   124	    000E  B4 0A				 mov ah,0Ah
+1   125	    0010  BA 0060r		     lea dx,testStr
+1   126	    0013  CD 21			     int 21h
+1   127	    0015  66| 8D 36 0060r		 lea esi, testStr
+1   128	    001A				 ??0001:
+1   129	    001A  67| 80 7E 02 00		 cmp byte ptr[esi+2], 0
+1   130	    001F  74 06	90 90			 je ??0000
+1   131	    0023  66| 46			 inc esi
+1   132	    0025  EB F3				 jmp ??0001
+1   133	    0027				 ??0000:
+1   134	    0027  67| C6 46 01 00		 mov byte ptr[esi+1], 0
+1   135	    002C  66| 5E			 pop esi
+1   136	    002E  58				 pop ax
+1   137	    002F  5A				 pop dx
+    138	    0030  66| 8D 36 0060r		 lea esi, testStr
+    139	    0035  E8 0000e			 call ATOI
+    140
+    141	    0038  66| 8D 3E 0076r		 lea edi, array
+    142
+    143
+    144						 PUTL requestForInputNumbers
+1   145	    003D  66| 51			 push ecx
+1   146	    003F  66| 50			 push eax
+1   147	    0041  66| 52			 push edx
+1   148	    0043  56				 push si
+1   149	    0044  BE 0002r			 LEA   SI,   requestForInputNumbers
+1   150	    0047  33 C9				 XOR   CX,   CX
+1   151	    0049  33 D2				 XOR   DX,   DX
+1   152	    004B  33 C0				 XOR   AX,   AX
+1   153	    004D  E8 0000e			 CALL  PUTSS
+1   154	    0050  5E				 pop	 si
+1   155	    0051  66| 5A			 pop edx
+1   156	    0053  66| 58			 pop eax
+1   157	    0055  66| 59			 pop ecx
+    158					 ;==============================================
+    159					 ;цикл ввода чисел
+    160	    0057			 InputCycle:
+    161	    0057  3B C8				 cmp cx, ax
+    162	    0059  0F 84	0098			 je endInputCycle
+    163
+    164						 ;==============================================
+    165						 ;ввод числа в буфер
+    166						 ;проверка на	корректность
+    167						 ;запись из буфера в массив структур
+    168						 INPUTMAS testStr
+1   169	    005D  52				 push dx
+1   170	    005E  50				 push ax
+1   171	    005F  66| 56			 push esi
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 4
 main.ASM
 
 
 
-1   172	    007A  66| 83 F8 FF			 cmp eax, -1
-1   173	    007E  74 1B	90 90			 je inputError
-    174	    0082  66| 58			 pop eax
-    175	    0084  E8 0000e			 call bufferToStruct
-    176	    0087  66| 83 C7 12			 add edi, 18
-    177						 ClearMas testStr
-1   178	    008B  66| 56			 push esi
-1   179	    008D  66| 8D 36 0060r		 lea esi, testStr
-1   180	    0092  E8 0000e			 call clearMassive
-1   181	    0095  66| 5E			 pop esi
-    182						 ;==============================================
-    183
-    184	    0097  66| 41			 inc ecx
-    185	    0099  EB 94				 jmp InputCycle
-    186	    009B			 inputError:
-    187						 PUTL errString
-1   188	    009B  66| 51			 push ecx
-1   189	    009D  66| 50			 push eax
-1   190	    009F  66| 52			 push edx
-1   191	    00A1  56				 push si
-1   192	    00A2  BE 002Br			 LEA   SI,   errString
-1   193	    00A5  33 C9				 XOR   CX,   CX
-1   194	    00A7  33 D2				 XOR   DX,   DX
-1   195	    00A9  33 C0				 XOR   AX,   AX
-1   196	    00AB  E8 0000e			 CALL  PUTSS
-1   197	    00AE  5E				 pop	 si
-1   198	    00AF  66| 5A			 pop edx
-1   199	    00B1  66| 58			 pop eax
-1   200	    00B3  66| 59			 pop ecx
-    201	    00B5			 endInputCycle:
-    202					 ;==============================================
-    203
-    204						 PUTL empty
-1   205	    00B5  66| 51			 push ecx
-1   206	    00B7  66| 50			 push eax
-1   207	    00B9  66| 52			 push edx
-1   208	    00BB  56				 push si
-1   209	    00BC  BE 0001r			 LEA   SI,   empty
-1   210	    00BF  33 C9				 XOR   CX,   CX
-1   211	    00C1  33 D2				 XOR   DX,   DX
-1   212	    00C3  33 C0				 XOR   AX,   AX
-1   213	    00C5  E8 0000e			 CALL  PUTSS
-1   214	    00C8  5E				 pop	 si
-1   215	    00C9  66| 5A			 pop edx
-1   216	    00CB  66| 58			 pop eax
-1   217	    00CD  66| 59			 pop ecx
-    218	    00CF  66| 8D 3E 0076r		 lea edi, array
-    219	    00D4  66| 8D 36 0076r		 lea esi, array
-    220	    00D9  66| 83 C6 12			 add esi, 18
-    221
-    222	    00DD  E8 0000e			 call normalize
-    223	    00E0  66| 8B FE			 mov edi, esi
-    224	    00E3  E8 0000e			 call normalize
-    225
-    226	    00E6  66| 8D 3E 0076r		 lea edi, array
-    227	    00EB  E8 0000e			 call subtraction
-    228
-Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 5
+1   172	    0061  33 D2				 xor dx, dx
+1   173	    0063  B4 0A				 mov ah,0Ah
+1   174	    0065  BA 0060r		     lea dx,testStr
+1   175	    0068  CD 21			     int 21h
+1   176	    006A  66| 8D 36 0060r		 lea esi, testStr
+1   177	    006F				 ??0003:
+1   178	    006F  67| 80 7E 02 00		 cmp byte ptr[esi+2], 0
+1   179	    0074  74 06	90 90			 je ??0002
+1   180	    0078  66| 46			 inc esi
+1   181	    007A  EB F3				 jmp ??0003
+1   182	    007C				 ??0002:
+1   183	    007C  67| C6 46 01 00		 mov byte ptr[esi+1], 0
+1   184	    0081  66| 5E			 pop esi
+1   185	    0083  58				 pop ax
+1   186	    0084  5A				 pop dx
+    187	    0085  66| 50			 push eax
+    188						 CheckStr testStr ;меняется eax
+1   189	    0087  E8 0000e			 call checkOnDot
+1   190	    008A  66| 83 F8 01			 cmp eax, 1
+1   191	    008E  75 4B	90 90			 jne inputError
+1   192	    0092  E8 0000e			 call checkOnSize
+1   193	    0095  66| 83 F8 FF			 cmp eax, -1
+1   194	    0099  74 40	90 90			 je inputError
+1   195	    009D  E8 0000e			 call checkOnNumber
+1   196	    00A0  66| 83 F8 FF			 cmp eax, -1
+1   197	    00A4  74 35	90 90			 je inputError
+    198	    00A8  66| 58			 pop eax
+    199	    00AA  E8 0000e			 call bufferToStruct
+    200	    00AD  66| 83 C7 12			 add edi, 18
+    201						 ClearMas testStr
+1   202	    00B1  66| 56			 push esi
+1   203	    00B3  66| 8D 36 0060r		 lea esi, testStr
+1   204	    00B8  E8 0000e			 call clearMassive
+1   205	    00BB  66| 5E			 pop esi
+    206						 ;==============================================
+    207						 PUTL empty
+1   208	    00BD  66| 51			 push ecx
+1   209	    00BF  66| 50			 push eax
+1   210	    00C1  66| 52			 push edx
+1   211	    00C3  56				 push si
+1   212	    00C4  BE 0001r			 LEA   SI,   empty
+1   213	    00C7  33 C9				 XOR   CX,   CX
+1   214	    00C9  33 D2				 XOR   DX,   DX
+1   215	    00CB  33 C0				 XOR   AX,   AX
+1   216	    00CD  E8 0000e			 CALL  PUTSS
+1   217	    00D0  5E				 pop	 si
+1   218	    00D1  66| 5A			 pop edx
+1   219	    00D3  66| 58			 pop eax
+1   220	    00D5  66| 59			 pop ecx
+    221	    00D7  41				 inc cx
+    222	    00D8  E9 FF7C			 jmp InputCycle
+    223	    00DB			 inputError:
+    224						 PUTL errString
+1   225	    00DB  66| 51			 push ecx
+1   226	    00DD  66| 50			 push eax
+1   227	    00DF  66| 52			 push edx
+1   228	    00E1  56				 push si
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 5
 main.ASM
 
 
 
-    229	    00EE  66| 8D 3E 0076r		 lea edi, array
-    230	    00F3  E8 0000e			 call outStruct
-    231
-    232					 ;==============================================
-    233					 ;цикл ввода индексов
-    234					 ;записывает индексы в стек
-    235					 ;	 PUTL requestForInputIndex
-    236					 ;	 xor ecx, ecx
-    237					 ;	 lea esi, testStr
-    238					 ;IndexCycle:
-    239					 ;	 cmp ecx, 3
-    240					 ;	 je endIndexCycle
-    241					 ;
-    242					 ;	 INPUTMAS testStr
-    243					 ;	 call ATOI; меняет AX
-    244					 ;	 PUTL empty
-    245					 ;	 call BINtoDEC
-    246					 ;	 push ax
-    247					 ;	 ClearMas testStr
-    248					 ;	 inc ecx
-    249					 ;	 jmp IndexCycle
-    250					 ;endIndexCycle:
-    251					 ;==============================================
-    252
-    253
-    254	    00F6  B4 4C				 MOV	 AH, 4ch
-    255	    00F8  B0 00			     MOV     AL, 0
-    256	    00FA  CD 21			     INT     21h
-    257						 EXTRN	 PUTSS:NEAR
-    258						 EXTRN	 PUTC:NEAR
-    259						 EXTRN	 BINtoDEC:NEAR
-    260						 EXTRN	 OutMassive:NEAR
-    261						 EXTRN	 GETCH:NEAR
-    262						 EXTRN	 bufferToStruct:NEAR
-    263						 EXTRN	 clearMassive:NEAR
-    264						 EXTRN	 checkOnDot:NEAR
-    265						 EXTRN	 checkOnSize:NEAR
-    266						 EXTRN	 checkOnNumber:NEAR
-    267						 EXTRN	 ATOI:NEAR
-    268						 EXTRN	 MulFive:NEAR
-    269						 EXTRN	 sumOperand:NEAR
-    270						 EXTRN	 outStruct:NEAR
-    271						 EXTRN	 normalize:NEAR
-    272						 EXTRN	 subtraction:NEAR
-    273
-    274
-    275					 END START
-Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 6
+1   229	    00E2  BE 002Br			 LEA   SI,   errString
+1   230	    00E5  33 C9				 XOR   CX,   CX
+1   231	    00E7  33 D2				 XOR   DX,   DX
+1   232	    00E9  33 C0				 XOR   AX,   AX
+1   233	    00EB  E8 0000e			 CALL  PUTSS
+1   234	    00EE  5E				 pop	 si
+1   235	    00EF  66| 5A			 pop edx
+1   236	    00F1  66| 58			 pop eax
+1   237	    00F3  66| 59			 pop ecx
+    238	    00F5			 endInputCycle:
+    239					 ;==============================================
+    240
+    241
+    242					 ;==============================================
+    243					 ;цикл ввода индексов
+    244					 ;записывает индексы в стек
+    245	    00F5  BF 01DEr			 lea di, index
+    246
+    247						 PUTL requestForInputIndex
+1   248	    00F8  66| 51			 push ecx
+1   249	    00FA  66| 50			 push eax
+1   250	    00FC  66| 52			 push edx
+1   251	    00FE  56				 push si
+1   252	    00FF  BE 001Dr			 LEA   SI,   requestForInputIndex
+1   253	    0102  33 C9				 XOR   CX,   CX
+1   254	    0104  33 D2				 XOR   DX,   DX
+1   255	    0106  33 C0				 XOR   AX,   AX
+1   256	    0108  E8 0000e			 CALL  PUTSS
+1   257	    010B  5E				 pop	 si
+1   258	    010C  66| 5A			 pop edx
+1   259	    010E  66| 58			 pop eax
+1   260	    0110  66| 59			 pop ecx
+    261	    0112  66| 33 C9			 xor ecx, ecx
+    262	    0115  66| 8D 36 0060r		 lea esi, testStr
+    263	    011A			 IndexCycle:
+    264	    011A  66| 83 F9 03			 cmp ecx, 3
+    265	    011E  74 63	90 90			 je endIndexCycle
+    266
+    267						 INPUTMAS testStr
+1   268	    0122  52				 push dx
+1   269	    0123  50				 push ax
+1   270	    0124  66| 56			 push esi
+1   271	    0126  33 D2				 xor dx, dx
+1   272	    0128  B4 0A				 mov ah,0Ah
+1   273	    012A  BA 0060r		     lea dx,testStr
+1   274	    012D  CD 21			     int 21h
+1   275	    012F  66| 8D 36 0060r		 lea esi, testStr
+1   276	    0134				 ??0005:
+1   277	    0134  67| 80 7E 02 00		 cmp byte ptr[esi+2], 0
+1   278	    0139  74 06	90 90			 je ??0004
+1   279	    013D  66| 46			 inc esi
+1   280	    013F  EB F3				 jmp ??0005
+1   281	    0141				 ??0004:
+1   282	    0141  67| C6 46 01 00		 mov byte ptr[esi+1], 0
+1   283	    0146  66| 5E			 pop esi
+1   284	    0148  58				 pop ax
+1   285	    0149  5A				 pop dx
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 6
+main.ASM
+
+
+
+    286	    014A  E8 0000e			 call ATOI; меняет AX
+    287						 PUTL empty
+1   288	    014D  66| 51			 push ecx
+1   289	    014F  66| 50			 push eax
+1   290	    0151  66| 52			 push edx
+1   291	    0153  56				 push si
+1   292	    0154  BE 0001r			 LEA   SI,   empty
+1   293	    0157  33 C9				 XOR   CX,   CX
+1   294	    0159  33 D2				 XOR   DX,   DX
+1   295	    015B  33 C0				 XOR   AX,   AX
+1   296	    015D  E8 0000e			 CALL  PUTSS
+1   297	    0160  5E				 pop	 si
+1   298	    0161  66| 5A			 pop edx
+1   299	    0163  66| 58			 pop eax
+1   300	    0165  66| 59			 pop ecx
+    301	    0167  E8 0000e			 call BINtoDEC
+    302
+    303	    016A  04 30				 add al, '0'
+    304	    016C  67| 88 07			 mov byte ptr[edi], al
+    305	    016F  66| 83 C7 01			 add edi, 1
+    306
+    307						 ClearMas testStr
+1   308	    0173  66| 56			 push esi
+1   309	    0175  66| 8D 36 0060r		 lea esi, testStr
+1   310	    017A  E8 0000e			 call clearMassive
+1   311	    017D  66| 5E			 pop esi
+    312	    017F  66| 41			 inc ecx
+    313	    0181  EB 97				 jmp IndexCycle
+    314	    0183			 endIndexCycle:
+    315					 ;==============================================
+    316
+    317
+    318					 ;==============умножение================================
+    319						 PUTL empty
+1   320	    0183  66| 51			 push ecx
+1   321	    0185  66| 50			 push eax
+1   322	    0187  66| 52			 push edx
+1   323	    0189  56				 push si
+1   324	    018A  BE 0001r			 LEA   SI,   empty
+1   325	    018D  33 C9				 XOR   CX,   CX
+1   326	    018F  33 D2				 XOR   DX,   DX
+1   327	    0191  33 C0				 XOR   AX,   AX
+1   328	    0193  E8 0000e			 CALL  PUTSS
+1   329	    0196  5E				 pop	 si
+1   330	    0197  66| 5A			 pop edx
+1   331	    0199  66| 58			 pop eax
+1   332	    019B  66| 59			 pop ecx
+    333	    019D  66| 8D 3E 0076r		 lea edi, array
+    334	    01A2  66| 8D 36 0076r		 lea esi, array
+    335
+    336	    01A7  66| 83 C7 24			 add edi, 36
+    337	    01AB  E8 0000e			 call MulFive
+    338	    01AE  66| 8D 3E 0076r		 lea edi, array
+    339	    01B3  E8 0000e			 call normalize
+    340	    01B6  66| 83 C7 12			 add edi, 18
+    341	    01BA  E8 0000e			 call normalize
+    342	    01BD  66| 83 C7 12			 add edi, 18
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 7
+main.ASM
+
+
+
+    343	    01C1  E8 0000e			 call normalize
+    344					 ;==============умножение================================
+    345					 ;==============замена местами при необходимости 2	и 3	    +
+    346					 операндов================================
+    347	    01C4  66| 8D 3E 0088r		 lea edi, array+18
+    348	    01C9  66| 8D 36 009Ar		 lea esi, array+36
+    349	    01CE  E8 0000e			 call changeOperand
+    350					 ;==============замена местами при необходимости 2	и 3	    +
+    351					 операндов================================
+    352
+    353
+    354
+    355					 ;=====================вычитание==================================
+    356
+    357						 ;первое отрицательное
+    358	    01D1				 minusFirst:
+    359	    01D1  67| 80 3F 2B			 cmp byte ptr[edi], '+'
+    360	    01D5  74 2E	90 90			 je plusFirst
+    361	    01D9  67| 80 3E 2B			 cmp byte ptr[esi], '+'
+    362	    01DD  74 14	90 90			 je plusSecond
+    363
+    364						 ;второе отрицательное
+    365	    01E1  E8 0000e			 call subtraction
+    366	    01E4  66| 83 F8 01			 cmp eax, 1
+    367	    01E8  75 44	90 90			 jne endOfSUB
+    368	    01EC  67| C6 07 2B			 mov byte ptr[edi], '+'
+    369
+    370	    01F0  EB 3C	90			 jmp endOfSUB
+    371
+    372
+    373	    01F3				 plusSecond:
+    374						 ;второе положительно
+    375	    01F3  E8 0000e			 call sumOperand
+    376	    01F6  66| 83 F8 01			 cmp eax, 1
+    377	    01FA  75 32	90 90			 jne endOfSUB
+    378	    01FE  67| C6 07 2B			 mov byte ptr[edi], '+'
+    379	    0202  EB 2A	90			 jmp endOfSUB
+    380
+    381
+    382						 ;первое положительное
+    383	    0205				 plusFirst:
+    384	    0205  67| 80 3E 2B			 cmp byte ptr[esi], '+'
+    385	    0209  74 14	90 90			 je fbdg
+    386	    020D  E8 0000e			 call sumOperand
+    387	    0210  66| 83 F8 01			 cmp eax, 1
+    388	    0214  75 18	90 90			 jne endOfSUB
+    389	    0218  67| C6 07 2D			 mov byte ptr[edi], '-'
+    390	    021C  EB 10	90			 jmp endOfSUB
+    391
+    392						 ;второе положительно
+    393	    021F				 fbdg:
+    394	    021F  E8 0000e			 call subtraction
+    395	    0222  66| 83 F8 01			 cmp eax, 1
+    396	    0226  75 06	90 90			 jne endOfSUB
+    397	    022A  67| C6 07 2D			 mov byte ptr[edi], '-'
+    398
+    399	    022E				 endOfSUB:
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 8
+main.ASM
+
+
+
+    400					 ;=====================вычитание==================================
+    401
+    402	    022E  66| 8D 3E 0076r		 lea edi, array
+    403	    0233  66| 83 F8 01			 cmp eax, 1
+    404	    0237  74 0A	90 90			 je jkl
+    405	    023B  66| 8D 36 0088r			 lea esi, array	+ 18
+    406	    0240  EB 06	90				 jmp rtyy
+    407	    0243				 jkl:
+    408	    0243  66| 8D 36 009Ar			 lea esi, array	+ 36
+    409	    0248				 rtyy:
+    410
+    411
+    412
+    413
+    414					 ;==========================
+    415					 ;	 lea edi, array
+    416					 ;	 call outStruct
+    417					 ;	 PUTL empty
+    418					 ;	 add edi, 18
+    419					 ;	 call outStruct
+    420					 ;	 PUTL empty
+    421					 ;	 add edi, 18
+    422	    0248  66| 8B FE			 mov edi, esi
+    423	    024B  E8 0000e			 call outStruct
+    424					 ;==========================
+    425
+    426
+    427					 ;==============================================
+    428					 ;цикл ввода индексов
+    429					 ;записывает индексы в стек
+    430					 ;	 PUTL requestForInputIndex
+    431					 ;	 xor ecx, ecx
+    432					 ;	 lea esi, testStr
+    433					 ;IndexCycle:
+    434					 ;	 cmp ecx, 3
+    435					 ;	 je endIndexCycle
+    436					 ;
+    437					 ;	 INPUTMAS testStr
+    438					 ;	 call ATOI; меняет AX
+    439					 ;	 PUTL empty
+    440					 ;	 call BINtoDEC
+    441					 ;	 push ax
+    442					 ;	 ClearMas testStr
+    443					 ;	 inc ecx
+    444					 ;	 jmp IndexCycle
+    445					 ;endIndexCycle:
+    446					 ;==============================================
+    447
+    448
+    449	    024E  B4 4C				 MOV	 AH, 4ch
+    450	    0250  B0 00			     MOV     AL, 0
+    451	    0252  CD 21			     INT     21h
+    452						 EXTRN	 PUTSS:NEAR
+    453						 EXTRN	 PUTC:NEAR
+    454						 EXTRN	 BINtoDEC:NEAR
+    455						 EXTRN	 OutMassive:NEAR
+    456						 EXTRN	 GETCH:NEAR
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 9
+main.ASM
+
+
+
+    457						 EXTRN	 bufferToStruct:NEAR
+    458						 EXTRN	 clearMassive:NEAR
+    459						 EXTRN	 checkOnDot:NEAR
+    460						 EXTRN	 checkOnSize:NEAR
+    461						 EXTRN	 checkOnNumber:NEAR
+    462						 EXTRN	 ATOI:NEAR
+    463						 EXTRN	 MulFive:NEAR
+    464						 EXTRN	 sumOperand:NEAR
+    465						 EXTRN	 outStruct:NEAR
+    466						 EXTRN	 normalize:NEAR
+    467						 EXTRN	 subtraction:NEAR
+    468						 EXTRN	 changeOperand:NEAR
+    469
+    470
+    471					 END START
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 10
 Symbol Table
 
 
@@ -306,11 +522,15 @@ Symbol Table
 
 Symbol Name			  Type	 Value
 
-??0000				  Near	 _TEXT:0056
-??0001				  Near	 _TEXT:0049
+??0000				  Near	 _TEXT:0027
+??0001				  Near	 _TEXT:001A
+??0002				  Near	 _TEXT:007C
+??0003				  Near	 _TEXT:006F
+??0004				  Near	 _TEXT:0141
+??0005				  Near	 _TEXT:0134
 ??DATE				  Text	 "05/10/21"
 ??FILENAME			  Text	 "main	  "
-??TIME				  Text	 "12:52:40"
+??TIME				  Text	 "21:58:18"
 ??VERSION			  Number 0205
 @CODE				  Text	 _TEXT
 @CODESIZE			  Text	 0
@@ -325,26 +545,42 @@ ARRAY				  Struct DGROUP:0076 FLOAT
 ATOI				  Near	 _TEXT:---- Extern
 BINTODEC			  Near	 _TEXT:---- Extern
 BUFFERTOSTRUCT			  Near	 _TEXT:---- Extern
+CHANGEOPERAND			  Near	 _TEXT:---- Extern
 CHECKONDOT			  Near	 _TEXT:---- Extern
 CHECKONNUMBER			  Near	 _TEXT:---- Extern
 CHECKONSIZE			  Near	 _TEXT:---- Extern
 CLEARMASSIVE			  Near	 _TEXT:---- Extern
 EMPTY				  Byte	 DGROUP:0001
-ENDINPUTCYCLE			  Near	 _TEXT:00B5
+ENDINDEXCYCLE			  Near	 _TEXT:0183
+ENDINPUTCYCLE			  Near	 _TEXT:00F5
+ENDOFSUB			  Near	 _TEXT:022E
 ERRSTRING			  Byte	 DGROUP:002B
+FBDG				  Near	 _TEXT:021F
 GETCH				  Near	 _TEXT:---- Extern
-INPUTCYCLE			  Near	 _TEXT:002F
-INPUTERROR			  Near	 _TEXT:009B
+INDEX				  Byte	 DGROUP:01DE
+INDEXCYCLE			  Near	 _TEXT:011A
+INPUTCYCLE			  Near	 _TEXT:0057
+INPUTERROR			  Near	 _TEXT:00DB
+JKL				  Near	 _TEXT:0243
+MINUSFIRST			  Near	 _TEXT:01D1
 MULFIVE				  Near	 _TEXT:---- Extern
 NORMALIZE			  Near	 _TEXT:---- Extern
 OUTMASSIVE			  Near	 _TEXT:---- Extern
 OUTSTRUCT			  Near	 _TEXT:---- Extern
+PLUSFIRST			  Near	 _TEXT:0205
+PLUSSECOND			  Near	 _TEXT:01F3
 PUTC				  Near	 _TEXT:---- Extern
 PUTSS				  Near	 _TEXT:---- Extern
 QUESTIONS			  Byte	 DGROUP:003C
 REQUESTFORINPUTINDEX		  Byte	 DGROUP:001D
 REQUESTFORINPUTNUMBERS		  Byte	 DGROUP:0002
+RTYY				  Near	 _TEXT:0248
 START				  Near	 _TEXT:0000
+Turbo Assembler	 Version 2.51	     05/10/21 21:58:19	    Page 11
+Symbol Table
+
+
+
 SUBTRACTION			  Near	 _TEXT:---- Extern
 SUMOPERAND			  Near	 _TEXT:---- Extern
 TEN				  Byte	 DGROUP:0000
@@ -357,11 +593,6 @@ CLEARMAS
 INPUTMAS
 PUTL
 PUTLS
-Turbo Assembler	 Version 2.51	     05/10/21 12:52:41	    Page 7
-Symbol Table
-
-
-
 
 Structure Name			  Type	Offset
 
@@ -374,6 +605,6 @@ Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   STACK				  16  0200 Para	  Stack	  STACK
-  _DATA				  16  01DE Word	  Public  DATA
-_TEXT				  16  00FC Word	  Public  CODE
+  _DATA				  16  01E1 Word	  Public  DATA
+_TEXT				  16  0254 Word	  Public  CODE
 

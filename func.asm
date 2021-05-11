@@ -393,58 +393,59 @@ calcFive	PROC	NEAR
 calcFive	ENDP
 ;=================================================
 ; Процедура сложения двух операндов
-;
+; к большему - меньший
 ; input - edi и esi - элементы массива
 ;=================================================
 sumOperand	PROC	NEAR
+	push eax
 	push edi
 	push esi
 	
 	mov ecx, edi
-	add edi, 18
-	add esi, 18
-	mov bl, 0
+	add edi, 17
+	add esi, 17
+	mov dl, 0
+	mov ah, 0
+	mov bh, 0
+	jmp startSum
+	
+	decrementSum:
+	dec edi
+	dec esi
 	startSum:
-		mov al,  byte ptr[edi]
-		add al, bl
-		mov byte ptr[edi], al
-		mov bl, 0
+	
 	cmp edi, ecx
 	je endSumOperation
 	
-	startSum1:
 	cmp byte ptr[edi], '9'
-	jle FirstIsNumber
-	
+	jg firstSign
 	cmp byte ptr[esi], '9'
-	jle transfer
-	ignor:
-	dec edi
-	dec esi
-	mov bl, 0
-	jmp startSum
+	jg decrementSum
+	jmp calc
 	
-	FirstIsNumber:
+	firstSign:
 	cmp byte ptr[esi], '9'
-	jg ignor
-	count:
+	jle calc
+	temp:
+	cmp byte ptr[edi], '|'
+	jne notEnd
+	cmp dl,0
+	je notEnd
+	mov byte ptr[edi], '1'
+	mov dl, 0
+	notEnd:
+	jmp decrementSum
+	
+	calc:
 	call sumNumbers
-	dec edi
-	dec esi
-	jmp startSum
-	
-	transfer:
-	mov dl, byte ptr[esi]
-	mov byte ptr[edi], dl
-	dec edi
-	dec esi
-	mov bl, 0
-	jmp startSum
-	
+	jmp decrementSum
+	;;;;;;;;;;;;;;;;;;;;;
 	endSumOperation:
+
 	
 	pop esi
 	pop edi
+	pop eax
 		RET
 sumOperand	ENDP
 ;=================================================
@@ -455,78 +456,87 @@ sumOperand	ENDP
 ;=================================================
 sumNumbers	PROC	NEAR
 	mov al, byte ptr[edi]
-	sub al, '0'
 	mov bl, byte ptr[esi]
+	cmp al, '9'
+	jg aNul
+	cmp bl, '9'
+	jg bNul
+	jmp startCulc
+	aNul:
+	mov al, '0'
+	jmp startCulc
+	bNul:
+	mov bl, '0'
+	startCulc:
+	sub al, '0'
 	sub bl, '0'
 	add al, bl
-	cmp al, 9d
-	jle notOverflow
-	mov bl, 1d
-	sub al, 10d
-	jmp notOverflow1
-	notOverflow:
-	mov bl, 0
-	notOverflow1:
+	;;;;;;;;;;;
+	add al, dl
+	mov dl, 0
+	;;;;;;;;;;;;
+	cmp al, 10
+	jl endCalc
+	mov dl, 1
+	sub al, 10
+	endCalc:
 	add al, '0'
 	mov byte ptr[edi], al
+	
 		RET
 sumNumbers	ENDP
 ;=================================================
 ; Процедура вычитания двух операндов
-;
+; из большего меньший
 ; input - edi и esi - элементы массива
 ;=================================================
 subtraction	PROC	NEAR
+	push eax
 	push edi
 	push esi
 	
 	mov ecx, edi
-	add edi, 18
-	add esi, 18
+	add edi, 17
+	add esi, 17
 	mov dl, 0
+	jmp startSub
+	
+	decrement:
+	dec edi
+	dec esi
+	
 	startSub:
-	
-	cmp dl, 0
-	je startSub1
-		mov al,  byte ptr[edi]
-		add al, dl
-		sub al, 1
-		mov byte ptr[edi], al
-	
-	startSub1:
-	
+	mov al, byte ptr[edi]
+	sub al,dl
+	mov byte ptr[edi], al
+	mov dl, 0
 	
 	cmp edi, ecx
-	je endSubtractionOperation
-	;
+	je endSubOperation
+	
 	cmp byte ptr[edi], '9'
-	jle firstIsNumberSub
+	jg firstIsSign
 	cmp byte ptr[esi], '9'
-	jle loan
-	ignore:
-	dec edi
-	dec esi
-	jmp startSub
+	jg decrement
 	
-	firstIsNumberSub:
-	cmp byte ptr[esi], '9'
-	jg ignore
-	jmp subF
-	
-	loan:
-	mov dl, 10
-	subF:
-	;
 	call subtractNumbers
-	;
-	dec edi
-	dec esi
-	jmp startSub
+	jmp decrement
 	
-	endSubtractionOperation:
+	firstIsSign:
+	cmp byte ptr[esi], '9'
+	jg decrement
+	mov al, 10
+	mov bl, byte ptr[esi]
+	sub bl, '0'
+	sub al, bl
+	add al, '0'
+	mov byte ptr[edi], al
+	
+	jmp decrement
+	endSubOperation:
 	pop esi
 	pop edi
-	
+	pop eax
 		RET
 subtraction	ENDP
 ;=================================================
@@ -539,18 +549,16 @@ subtractNumbers	PROC	NEAR
 	sub al, '0'
 	mov bl, byte ptr[esi]
 	sub bl, '0'
-	add al, dl
-	cmp al, bl
-	jg bbb
-	mov dl, 10
-	jmp bbb1
-	bbb:
-	mov dl, 0
-	bbb1:
+	
 	sub al, bl
+	cmp al, 0
+	jge hf
+	
+	add al, 10
+	mov dl, 1
+	hf:
 	add al, '0'
 	mov byte ptr[edi], al
-	
 		RET
 subtractNumbers	ENDP
 ;=================================================
@@ -635,7 +643,47 @@ outStruct	PROC	NEAR
 	
 		RET
 outStruct	ENDP
+;=================================================
 
+;=================================================
+changeOperand	PROC	NEAR
+	push edi
+	push esi
+	add edi, 1
+	add esi, 1
+	iterationCycle:
+	cmp byte ptr[edi], '9'
+	jle secondCheck
+	
+	cmp byte ptr[esi], '9'
+	jle secondHappening
+	inc edi
+	inc esi
+	jmp iterationCycle
+	
+	
+	secondCheck:
+	cmp byte ptr[esi], '9'
+	jle equalSize
+	jmp firstHappening
+	equalSize:
+	mov al, byte ptr[edi]
+	cmp al, byte ptr[esi]
+	jl secondHappening
+	
+		firstHappening:
+		pop esi
+		pop edi
+		mov eax, 0
+		jmp emd
+		
+		secondHappening:
+		pop edi
+		pop esi
+		mov eax, 1
+		emd:
+		RET
+changeOperand	ENDP
 PUBLIC	PUTSS
 PUBLIC	PUTC 
 PUBLIC	BINtoDEC 
@@ -652,4 +700,5 @@ PUBLIC	sumOperand
 PUBLIC	outStruct
 PUBLIC	normalize
 PUBLIC	subtraction
+PUBLIC	changeOperand
 END
