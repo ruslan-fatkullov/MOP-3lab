@@ -65,7 +65,8 @@ InputCycle:
 	PUTL empty
 	inc cx
 	jmp InputCycle
-
+inputError:
+	PUTL errString
 endInputCycle:	
 ;==============================================
 
@@ -98,12 +99,6 @@ endIndexCycle:
 
 ;==============приведение================================
 	PUTL empty
-	;lea edi, index
-	;getElement 
-	;lea edi, array
-	;add edi, eax
-	;call normalize
-	;;;
 	xor ecx, ecx
 	lea edi, array
 	startPriv:
@@ -156,7 +151,7 @@ endIndexCycle:
 	call changeOperand
 ;==============замена местами при необходимости 1 и 1 операндов================================
 
-
+	push eax
 
 ;=====================сложение==================================	
 	cmp byte ptr[edi], '+'
@@ -177,7 +172,7 @@ endIndexCycle:
 	call sumOperand
 	endSUM:
 ;=====================сложение==================================	
-
+	pop eax
 	;lea edi, array
 	cmp eax, 1
 	je jkl
@@ -195,11 +190,20 @@ endIndexCycle:
 
 
 
+
+;==========================
+;	lea edi, array
+;	call outStruct
+;	PUTL empty
+;	add edi, 18
+;	call outStruct
+;	PUTL empty
+;	add edi, 18
 	PUTL res
 	call outStruct
+;==========================
 	
-inputError:
-	PUTL errString	
+	
 
 
 	MOV     AH, 4ch

@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 1
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 1
 func.ASM
 
 
@@ -60,7 +60,7 @@ func.ASM
 1    55						 pop dx
 1    56							 ENDM
 1    57
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 2
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 2
 func.ASM
 
 
@@ -122,7 +122,7 @@ func.ASM
     112	    000D  3C 00				 CMP	 AL,	 0
     113	    000F  74 08	90 90			 JZ	 @@E
     114	    0013  E8 000E			 CALL	 PUTC
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 3
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 3
 func.ASM
 
 
@@ -184,7 +184,7 @@ func.ASM
     169	    004F  C3					 ret
     170	    0050			 BINtoDEC	 ENDP
     171					 ;==============================================
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 4
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 4
 func.ASM
 
 
@@ -246,7 +246,7 @@ func.ASM
     226	    00A4  67| 80 3E 00			 cmp byte ptr[esi], 0
     227	    00A8  74 08	90 90			 je endCheckReal
     228	    00AC  66| 40			 inc eax
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 5
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 5
 func.ASM
 
 
@@ -308,7 +308,7 @@ func.ASM
     283	    0103  66| 56		     push esi
     284	    0105  66| 57			 push edi
     285	    0107  66| 52			 push edx
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 6
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 6
 func.ASM
 
 
@@ -370,7 +370,7 @@ func.ASM
     340	    0166  74 0B	90 90			 je exitClear
     341	    016A  67| C6 46 02 00		 mov byte ptr[esi+2], 0
     342	    016F  66| 46			 inc esi
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 7
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 7
 func.ASM
 
 
@@ -432,7 +432,7 @@ func.ASM
     397	    01B3				 @@EXIT:
     398	    01B3  5E					 POP si
     399	    01B4  5B					 POP	 BX
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 8
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 8
 func.ASM
 
 
@@ -494,7 +494,7 @@ func.ASM
     454	    0210  66| 58			 pop eax
     455	    0212  66| 5B			 pop ebx
     456	    0214  66| 59			 pop ecx
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 9
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 9
 func.ASM
 
 
@@ -556,7 +556,7 @@ func.ASM
     511
     512	    0268				 firstSign:
     513	    0268  67| 80 3E 39			 cmp byte ptr[esi], '9'
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 10
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 10
 func.ASM
 
 
@@ -618,7 +618,7 @@ func.ASM
     568	    02C5				 endCalc:
     569	    02C5  04 30				 add al, '0'
     570	    02C7  67| 88 07			 mov byte ptr[edi], al
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 11
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 11
 func.ASM
 
 
@@ -680,7 +680,7 @@ func.ASM
     625	    0324  66| 58			 pop eax
     626	    0326  C3					 RET
     627	    0327			 subtraction	 ENDP
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 12
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 12
 func.ASM
 
 
@@ -742,7 +742,7 @@ func.ASM
     682
     683	    0379				 endIteration:
     684	    0379  66| 3B F8			 cmp edi, eax
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 13
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 13
 func.ASM
 
 
@@ -804,7 +804,7 @@ func.ASM
     739	    03DA  66| 83 C1 01			 add ecx, 1
     740	    03DE				 rty1:
     741	    03DE  66| 83 F9 12			 cmp ecx, 18
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 14
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 14
 func.ASM
 
 
@@ -866,7 +866,7 @@ func.ASM
     796	    0448					 secondHappening:
     797	    0448  66| 5F				 pop edi
     798	    044A  66| 5E				 pop esi
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 15
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 15
 func.ASM
 
 
@@ -917,7 +917,7 @@ func.ASM
     842					 PUBLIC	 changeOperand
     843					 PUBLIC	 minimumOperand
     844					 END
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 16
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 16
 Symbol Table
 
 
@@ -927,7 +927,7 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "05/11/21"
 ??FILENAME			  Text	 "func	  "
-??TIME				  Text	 "13:35:17"
+??TIME				  Text	 "13:49:47"
 ??VERSION			  Number 0205
 @@CONVERT			  Near	 _TEXT:018D
 @@E				  Near	 _TEXT:0019
@@ -979,7 +979,7 @@ ENDOF				  Near	 _TEXT:0186
 ENDSUBOPERATION			  Near	 _TEXT:0320
 ENDSUMOPERATION			  Near	 _TEXT:028C
 ENDUI				  Near	 _TEXT:036E
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 17
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 17
 Symbol Table
 
 
@@ -1041,7 +1041,7 @@ Macro Name
 CHECKSTR
 CLEARMAS
 GETELEMENT
-Turbo Assembler	 Version 2.51	     05/11/21 13:35:17	    Page 18
+Turbo Assembler	 Version 2.51	     05/11/21 13:49:48	    Page 18
 Symbol Table
 
 
