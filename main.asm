@@ -58,11 +58,14 @@ InputCycle:
 	add edi, 18
 	ClearMas testStr
 	;==============================================
+	
+	
+	
+	
 	PUTL empty
 	inc cx
 	jmp InputCycle
-inputError:
-	PUTL errString
+
 endInputCycle:	
 ;==============================================
 
@@ -118,28 +121,38 @@ endIndexCycle:
 ;==============поиск минимального====================================
 ;минимальный в edi
 	;;;lea edi, array+18
-	;lea edi, index+1
-	;getElement 
-	;lea edi, array
-	;add edi, eax
+	lea edi, index+1
+	getElement 
+	lea edi, array
+	add edi, eax
 	;;;
+	push edi
+	lea edi, index+2
+	getElement 
+	lea edi, array
+	add edi, eax
+	mov esi, edi
+	pop edi
 	
-	
-	lea edi, array+18
-	lea esi, array+36
 	call changeOperand
 	call minimumOperand
 	PUTL minElem
 	call outStruct
 	PUTL empty
+	;;;
 ;==============поиск минимального====================================
 
 
 
 ;==============замена местами при необходимости 1 и 2 операндов================================
-	
+		
 	mov esi, edi
+	;;;
+	lea edi, index
+	getElement 
 	lea edi, array
+	add edi, eax
+	;;;
 	call changeOperand
 ;==============замена местами при необходимости 1 и 1 операндов================================
 
@@ -165,32 +178,28 @@ endIndexCycle:
 	endSUM:
 ;=====================сложение==================================	
 
-	lea edi, array
+	;lea edi, array
 	cmp eax, 1
 	je jkl
-		lea esi, array
+		lea edi, index
+		getElement 
+		lea edi, array
+		add edi, eax
 		jmp rtyy
 	jkl:
-		lea esi, array + 18
+		lea edi, index+1
+		getElement 
+		lea edi, array
+		add edi, eax
 	rtyy:
 
 
 
-
-;==========================
-;	lea edi, array
-;	call outStruct
-;	PUTL empty
-;	add edi, 18
-;	call outStruct
-;	PUTL empty
-;	add edi, 18
 	PUTL res
-	mov edi, esi
 	call outStruct
-;==========================
 	
-	
+inputError:
+	PUTL errString	
 
 
 	MOV     AH, 4ch
